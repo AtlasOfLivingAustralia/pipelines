@@ -5,7 +5,7 @@
   <parent>
     <groupId>au.org.ala</groupId>
     <artifactId>livingatlas</artifactId>
-    <version>3.2.24-SNAPSHOT</version>
+    <version>3.2.24-1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -147,12 +147,18 @@
             --add-opens=java.desktop/com.sun.imageio.spi=ALL-UNNAMED
             --add-exports=java.base/sun.security.action=ALL-UNNAMED
           </argLine>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
+          <runOrder>alphabetical</runOrder>
+          <parallel>none</parallel>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
           <argLine>
             --add-opens=java.base/java.lang=ALL-UNNAMED
             --add-opens=java.base/java.util=ALL-UNNAMED
@@ -165,9 +171,6 @@
             --add-opens=java.desktop/com.sun.imageio.spi=ALL-UNNAMED
             --add-exports=java.base/sun.security.action=ALL-UNNAMED
           </argLine>
-        <!-- this has been commented out as it causes issues with local builds -->
-<!--          <forkCount>2</forkCount>-->
-<!--          <reuseForks>true</reuseForks>-->
         </configuration>
       </plugin>
       <plugin>
@@ -310,10 +313,22 @@
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>models</artifactId>
+      <version>${gbif.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.pipelines</groupId>
+      <artifactId>keygen</artifactId>
+      <version>${gbif.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.pipelines</groupId>
+      <artifactId>archives-converters</artifactId>
+      <version>${gbif.version}</version>
     </dependency>
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>core</artifactId>
+      <version>${gbif.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.gbif.occurrence</groupId>
@@ -335,14 +350,17 @@
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>beam-transforms</artifactId>
+      <version>${gbif.version}</version>
     </dependency>
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>variables</artifactId>
+      <version>${gbif.version}</version>
     </dependency>
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>beam-common</artifactId>
+      <version>${gbif.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -827,6 +845,7 @@
     <dependency>
       <groupId>org.gbif.pipelines</groupId>
       <artifactId>elasticsearch-tools</artifactId>
+      <version>${gbif.version}</version>
     </dependency>
 
     <dependency>

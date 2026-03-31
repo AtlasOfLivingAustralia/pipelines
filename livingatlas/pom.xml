@@ -5,14 +5,19 @@
   <parent>
     <groupId>org.gbif.pipelines</groupId>
     <artifactId>pipelines-parent</artifactId>
-    <version>3.2.24-SNAPSHOT</version>
+    <version>3.2.24</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>au.org.ala</groupId>
   <artifactId>livingatlas</artifactId>
   <packaging>pom</packaging>
+  <version>3.2.24-1.0-SNAPSHOT</version>
   <name>Pipelines :: Living Atlas</name>
+
+  <properties>
+    <gbif.version>3.2.24</gbif.version>
+  </properties>
 
   <modules>
     <module>pipelines</module>

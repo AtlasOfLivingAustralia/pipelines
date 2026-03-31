@@ -1,12 +1,29 @@
-sudo: true
 language: java
-services:
-  - docker
+sudo: false
 jdk:
-  - openjdk8
+  - openjdk17
 branches:
   only:
-  - master
-  - ala-dev
-  - gbif-dev
-script: "mvn verify  -U"
+    - develop
+    - feature/travis-test
+cache:
+  directories:
+    - $HOME/.m2
+
+stages:
+  - name: build
+  - name: test
+
+jobs:
+  include:
+    - stage: build
+      name: "Compile and Package"
+      script:
+        - mvn clean package -DskipTests -B -V
+        - cd livingatlas
+        - mvn clean package -P livingatlas-artifacts -DskipTests -B -V
+
+    - stage: test
+      name: "Run Unit Tests"
+      script:
+        - mvn test -B
