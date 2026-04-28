@@ -24,6 +24,6 @@ jobs:
         - mvn clean package -P livingatlas-artifacts -DskipTests -B -V
 
     - stage: test
-      name: "Run Unit Tests"
+      name: "Run Unit and Integration Tests"
       script:
-        - mvn test -B
+        - mvn verify
