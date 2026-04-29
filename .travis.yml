@@ -16,8 +16,23 @@ stages:
 
 jobs:
   include:
+    - stage: build
+      name: "Compile and Package"
+      script:
+        - mvn clean package -DskipTests -B -V
+        - cd livingatlas
+        - mvn clean package -P livingatlas-artifacts -DskipTests -B -V
+
     - stage: test
-      name: "Run Unit and Integration Tests"
+      name: "Run Unit Tests"
       script:
         - cd livingatlas
-        - mvn verify
+        - mvn test -B
+
+    - stage: integration-test
+      name: "Run Integration Tests"
+      script:
+        - cd livingatlas/pipelines
+        - chmod +x
+        - ./run-integration-tests.sh
+
