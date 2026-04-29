@@ -24,15 +24,11 @@ jobs:
         - mvn clean package -P livingatlas-artifacts -DskipTests -B -V
 
     - stage: test
-      name: "Run Unit Tests"
+      name: "Run Tests"
       script:
         - cd livingatlas
         - mvn test -B
-
-    - stage: integration-test
-      name: "Run Integration Tests"
-      script:
-        - cd livingatlas/pipelines
-        - chmod +x
+        - cd pipelines
+        - chmod +x run-integration-tests.sh
         - ./run-integration-tests.sh
 

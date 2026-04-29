@@ -5,7 +5,7 @@ FAILED_TESTS=()
 PASSED_TESTS=()
 
 download_shapefiles() {
-  if find /tmp/pipelines-shp -name "*.shp" -type f 2>/dev/null | grep -q .; then
+  if find /tmp/pipelines-shp/ -name "*.shp" -type f 2>/dev/null | grep -q .; then
     echo "Shapefiles already exist, skipping download."
   else
     echo "Shapefiles not found, downloading..."
