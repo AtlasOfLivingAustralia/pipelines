@@ -149,6 +149,7 @@ public class IntegrationTestUtils extends ExternalResource {
         log.error("Could not close rest client for testing", e);
       }
     }
+    closeAllCache2kCaches();
   }
 
   public String getPropertiesFilePath() {
@@ -170,5 +171,21 @@ public class IntegrationTestUtils extends ExternalResource {
       throw new RuntimeException("Run setup first !");
     }
     return config;
+  }
+
+  private static void closeAllCache2kCaches() {
+    try {
+      // cache2k maintains a static global manager per ClassLoader
+      org.cache2k.CacheManager mgr = org.cache2k.CacheManager.getInstance();
+      mgr.getActiveCaches()
+          .forEach(
+              cache -> {
+                try {
+                  cache.close();
+                } catch (Exception ignored) {
+                }
+              });
+    } catch (Exception ignored) {
+    }
   }
 }

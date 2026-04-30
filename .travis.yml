@@ -27,8 +27,5 @@ jobs:
       name: "Run Tests"
       script:
         - cd livingatlas
-        - mvn test -B
-        - cd pipelines
-        - chmod +x run-integration-tests.sh
-        - ./run-integration-tests.sh
+        - mvn verify
 
