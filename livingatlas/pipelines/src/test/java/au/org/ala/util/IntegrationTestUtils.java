@@ -94,7 +94,8 @@ public class IntegrationTestUtils extends ExternalResource {
           new ElasticsearchContainer(
                   DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
                       .withTag("7.10.2"))
-              .withReuse(true).withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m") ;
+              .withReuse(true)
+              .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m");
       elasticsearchContainer.start();
 
       TestUtils.setSolrPorts(solrPort, zkPort);
