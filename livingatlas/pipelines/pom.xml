@@ -465,6 +465,11 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
+        <!-- Prevent Hadoop from selecting Reload4j as the SLF4J provider -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-reload4j</artifactId>
+        </exclusion>
         <!-- Avoid conflicts with Apache Beam -->
         <exclusion>
           <groupId>commons-httpclient</groupId>
@@ -502,6 +507,10 @@
           <groupId>io.netty</groupId>
           <artifactId>netty</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-reload4j</artifactId>
+        </exclusion>
       </exclusions>
       <scope>compile</scope>
     </dependency>
@@ -514,6 +523,11 @@
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <!-- Prevent Hadoop from selecting Reload4j as the SLF4J provider -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-reload4j</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -569,6 +583,11 @@
       <groupId>com.jcabi</groupId>
       <artifactId>jcabi-log</artifactId>
       <version>${jcabi-log.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <!-- Json -->
