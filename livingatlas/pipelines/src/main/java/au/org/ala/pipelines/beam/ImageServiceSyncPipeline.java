@@ -50,6 +50,7 @@ import org.gbif.pipelines.core.pojo.HdfsConfigs;
 import org.gbif.pipelines.io.avro.*;
 import org.gbif.pipelines.transforms.extension.MultimediaTransform;
 import org.slf4j.MDC;
+import org.springframework.web.client.RestClientException;
 import retrofit2.Call;
 
 /**
@@ -437,14 +438,19 @@ public class ImageServiceSyncPipeline {
 
     String filePath = tmpDir + "/" + options.getDatasetId() + ".csv.gz";
     log.info("Output to path " + filePath);
-    Call<ResponseBody> call = service.downloadMappingFile(options.getDatasetId());
-
-    ResponseBody responseBody = SyncCall.syncCall(call);
-    InputStream inputStream = responseBody.byteStream();
     File localFile = new File(filePath);
 
-    // download the file to local
-    IOUtils.copy(inputStream, new FileOutputStream(localFile));
+    Call<ResponseBody> call = service.downloadMappingFile(options.getDatasetId());
+    ResponseBody responseBody = SyncCall.syncCall(call);
+    try (InputStream inputStream = responseBody.byteStream();
+        FileOutputStream outputStream = new FileOutputStream(localFile)) {
+      // download the file to local
+      IOUtils.copy(inputStream, outputStream);
+      outputStream.flush();
+    } catch (IOException e) {
+      throw new RestClientException(
+          "Failed to write mapping file for dataset: " + options.getDatasetId(), e);
+    }
 
     // decompress to filesystem
     String hdfsPath =
