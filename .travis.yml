@@ -1,7 +1,13 @@
 language: java
-sudo: false
+dist: focal
 jdk:
   - openjdk17
+
+env:
+  global:
+    - MAVEN_OPTS="-Xmx1g"
+    - MAVEN_CLI_ARGS="-DargLine='-Xmx3g -XX:MaxMetaspaceSize=512m'"
+
 branches:
   only:
     - main
@@ -14,4 +20,4 @@ jobs:
     - stage: Build and Run All Tests
       name: "Build and Tests"
       script:
-        - travis_wait 60 mvn verify
+        - travis_wait 60 mvn verify $MAVEN_CLI_ARGS
