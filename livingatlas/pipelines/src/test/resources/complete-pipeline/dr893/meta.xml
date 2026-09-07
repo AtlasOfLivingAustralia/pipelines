@@ -55,5 +55,6 @@
         <field index="46" term="stateConservation"/>
         <field index="47" term="countryConservation"/>
         <field index="48" term="http://rs.tdwg.org/dwc/terms/organismQuantity"/>
+        <field index="49" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>
       </core>
     </archive>

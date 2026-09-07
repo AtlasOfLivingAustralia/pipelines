@@ -93,6 +93,24 @@ public class CompleteEventPipelineTestIT {
         ElasticUtils.getRecordCount(INDEX_NAME, "occurrence.eventHierarchy", "event1");
     assertEquals(2, occSurveyIDCount);
 
+    long occTaxonKingdomCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME, "occurrence.taxonomy", "occurrence.taxonomy.name", "Animalia");
+    assertEquals(2, occTaxonKingdomCount);
+
+    long occTaxonPhylumCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME, "occurrence.taxonomy", "occurrence.taxonomy.name", "Chordata");
+    assertEquals(2, occTaxonPhylumCount);
+
+    long occTaxonSpeciesCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME,
+            "occurrence.taxonomy",
+            "occurrence.taxonomy.name",
+            "Latropiscis purpurissatus");
+    assertEquals(2, occTaxonSpeciesCount);
+
     // check total documents indexed
     long allCount = ElasticUtils.getRecordCount(INDEX_NAME);
     assertEquals(7, allCount);

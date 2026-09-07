@@ -3,10 +3,12 @@ package au.org.ala.kvs;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** Store configuration of SHP files including fields for ALA Country/State interpretation */
-@AllArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class GeocodeShpConfig implements Serializable {
 
   private ShapeFile country;

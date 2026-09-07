@@ -136,7 +136,7 @@ public class CoreTsvConverterTest {
       "\"raw_er_institutionID\"", // DwcTerm.institutionID
       "\"raw_er_island\"", // DwcTerm.island
       "\"raw_er_islandGroup\"", // DwcTerm.islandGroup
-      "\"{concept: br_lifeStage, lineage: [br_lifeStageLineage], tags: []}\"", // DwcTerm.lifeStage
+      "\"br_lifeStage\"",
       "\"raw_er_locationAccordingTo\"", // DwcTerm.locationAccordingTo
       "\"raw_er_locationID\"", // DwcTerm.locationID
       "\"3.3333333333E10\"", // DwcTerm.maximumDistanceAboveSurfaceInMeters

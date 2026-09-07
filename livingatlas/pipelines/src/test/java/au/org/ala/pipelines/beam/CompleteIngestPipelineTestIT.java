@@ -150,6 +150,10 @@ public class CompleteIngestPipelineTestIT {
     assertEquals("native", record.get().get("raw_establishmentMeans"));
     assertEquals("native", record.get().get("establishmentMeans"));
 
+    // 'larvae' in lifeStage is processed as 'Larva'
+    assertEquals("larvae", record.get().get("raw_lifeStage"));
+    assertEquals("Larva", record.get().get("lifeStage"));
+
     // recordByID and identifiedByID
     assertEquals("id3", record.get().get("raw_recordedByID"));
     assertEquals("id3", ((List) record.get().get("recordedByID")).get(0));

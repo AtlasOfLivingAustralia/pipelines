@@ -4,9 +4,9 @@
 
   <parent>
     <groupId>org.gbif.pipelines</groupId>
-    <artifactId>identifiers</artifactId>
-   <version>3.2.24</version>
-    <relativePath>../pom.xml</relativePath>
+    <artifactId>pipelines-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../../../pom.xml</relativePath>
   </parent>
 
   <artifactId>keygen</artifactId>

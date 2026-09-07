@@ -609,10 +609,11 @@ public class IndexRecordTransform implements Serializable, IndexFields {
 
   private static void applyBasicRecord(BasicRecord br, IndexRecord.Builder indexRecord) {
     if (br != null) {
-      addEstablishmentValueSafely(
+      addTermConceptSafely(
           indexRecord, DwcTerm.establishmentMeans.simpleName(), br.getEstablishmentMeans());
-      addDegreeOfEstablishmentValueSafely(
+      addTermConceptSafely(
           indexRecord, DwcTerm.degreeOfEstablishment.simpleName(), br.getDegreeOfEstablishment());
+      addTermConceptSafely(indexRecord, DwcTerm.lifeStage.simpleName(), br.getLifeStage());
       addTermWithAgentsSafely(
           indexRecord, DwcTerm.recordedByID.simpleName(), br.getRecordedByIds());
       addTermWithAgentsSafely(
@@ -811,17 +812,10 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     }
   }
 
-  private static void addEstablishmentValueSafely(
-      IndexRecord.Builder indexRecord, String field, VocabularyConcept establishmentMeans) {
-    if (establishmentMeans != null) {
-      indexRecord.getStrings().put(field, establishmentMeans.getConcept());
-    }
-  }
-
-  private static void addDegreeOfEstablishmentValueSafely(
-      IndexRecord.Builder indexRecord, String field, VocabularyConcept degreeOfEstablishment) {
-    if (degreeOfEstablishment != null) {
-      indexRecord.getStrings().put(field, degreeOfEstablishment.getConcept());
+  private static void addTermConceptSafely(
+      IndexRecord.Builder indexRecord, String field, VocabularyConcept vocabularyConcept) {
+    if (vocabularyConcept != null) {
+      indexRecord.getStrings().put(field, vocabularyConcept.getConcept());
     }
   }
 

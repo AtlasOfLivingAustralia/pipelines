@@ -1,7 +1,7 @@
 package au.org.ala.distribution;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
@@ -21,7 +21,7 @@ public class DistributionServiceImpl implements Serializable {
 
   private DistributionServiceImpl(String baseUrl) {
     ObjectMapper om =
-        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     JacksonConverterFactory jcf = JacksonConverterFactory.create(om);
     retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(jcf).build();
     service = retrofit.create(DistributionService.class);

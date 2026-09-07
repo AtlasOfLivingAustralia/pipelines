@@ -332,3 +332,6 @@ solr-sh-args:
     executor-cores: 8
     executor-memory: 18G
     driver-memory: 2G
+
+java:
+  path: JAVA_PATH

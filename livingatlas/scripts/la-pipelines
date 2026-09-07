@@ -314,6 +314,10 @@ COLLECTORY_WS_API_KEY=$(getConf collectory.httpHeaders.Authorization);
 COPY_DEST=$(getConf copy.copyPath)
 
 EXTRA_JVM_OPTS_CONFIG=$(getConf jvm.extra_opts)
+JAVA_PATH=$(getConf java.path)
+# Use JAVA_PATH env var if set, otherwise default to 'java' on PATH
+JAVA_PATH="${JAVA_PATH:-java}"
+log.info "JAVA_PATH $JAVA_PATH"
 
 # Split exclude list of drs
 IFS=',' read -ra excludes <<< "$exclude"
@@ -341,28 +345,28 @@ function logStepEnd() {
 function archive-list() {
     # dump out archive list
     log.info "Dumping archive list"
-    java $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.DumpArchiveList \
+    $JAVA_PATH $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.DumpArchiveList \
        --config=$config $ARGS
 }
 
 function prune-datasets() {
     # dump out archive list
     log.info "Removing unregistered datasets"
-    java $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.PruneUnregisteredDatasets \
+    $JAVA_PATH $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.PruneUnregisteredDatasets \
        --config=$config $ARGS
 }
 
 function dataset-list() {
     # dump out archive list
     log.info "Dumping dataset list"
-    java $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.DumpDatasetSize \
+    $JAVA_PATH $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.DumpDatasetSize \
          --config=$config $ARGS
 }
 
 function validation-report() {
     # dump out archive list
     log.info "Creating validation report"
-    java $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.ValidationReportWriter \
+    $JAVA_PATH $EXTRA_JVM_CLI_ARGS -cp $LOCAL_PIPELINES_JAR au.org.ala.utils.ValidationReportWriter \
        --config=$config $ARGS
 }
 
@@ -457,7 +461,7 @@ function dwca-avro () {
 
     if [[ $dr != "all" ]] ; then
       logStepStart "DWCA-AVRO conversion" $dr
-      $_D java $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG -Dspark.local.dir=$SPARK_TMP \
+      $_D $JAVA_PATH $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG -Dspark.local.dir=$SPARK_TMP \
           -Djava.io.tmpdir=$DWCA_TMP \
           -cp $LOCAL_PIPELINES_JAR $CLASS \
           --datasetId=$dr \
@@ -473,7 +477,7 @@ function dwca-avro () {
       while IFS=, read -r dr inputPath
       do
           log.info "Dataset = $dr and Input file = $inputPath"
-          $_D java $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG -Dspark.local.dir=$SPARK_TMP \
+          $_D $JAVA_PATH $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG -Dspark.local.dir=$SPARK_TMP \
               -Djava.io.tmpdir=$DWCA_TMP \
               -cp $LOCAL_PIPELINES_JAR $CLASS \
               --datasetId=$dr \
@@ -489,7 +493,7 @@ function common-pipeline() {
 
     log.info $(date)
 
-    $_D java $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG \
+    $_D $JAVA_PATH $EXTRA_JVM_CLI_ARGS $EXTRA_JVM_OPTS_CONFIG \
         $(getConf $SH_ARGS.jvm) \
         -cp $PIPELINES_JAR $CLASS \
         --datasetId=$dr \

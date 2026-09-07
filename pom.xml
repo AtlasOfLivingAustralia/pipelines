@@ -10,14 +10,14 @@
 
   <groupId>org.gbif.pipelines</groupId>
   <artifactId>pipelines-parent</artifactId>
-  <version>3.2.24</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>gbif</module>
+<!--    <module>gbif</module>-->
+    <module>gbif/identifiers/keygen</module>
     <module>sdks</module>
-    <!-- Please comment livingatlas module if gives problems with the build and ask for help -->
-<!--    <module>livingatlas</module>-->
+    <module>livingatlas</module>
   </modules>
 
   <name>Pipelines :: Parent</name>
@@ -47,6 +47,10 @@
   </distributionManagement>
 
   <repositories>
+    <repository>
+      <id>ala-nexus-public</id>
+      <url>https://nexus.ala.org.au/repository/public/</url>
+    </repository>
     <repository>
       <id>gbif-release</id>
       <url>https://repository.gbif.org/repository/releases/</url>
@@ -82,9 +86,16 @@
       <id>gbif-snapshot</id>
       <url>https://repository.gbif.org/repository/snapshots/</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>ala-nexus-public</id>
+      <url>https://nexus.ala.org.au/repository/public/</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <properties>
+    <!-- project version - change this single value to version the entire project -->
+    <revision>3.2.24-ala1-SNAPSHOT</revision>
+
     <!-- Common variables -->
     <jdkLevel>17</jdkLevel>
     <maven.compiler.source>${jdkLevel}</maven.compiler.source>
@@ -107,7 +118,7 @@
     <kvs.version>3.0</kvs.version>
     <hbase-utils.version>1.0.0</hbase-utils.version>
     <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
-    <gbif-occurrence.version>1.1.19</gbif-occurrence.version>
+    <gbif-occurrence.version>1.1.24</gbif-occurrence.version>
     <vocabulary-lookup.version>2.0.3</vocabulary-lookup.version>
     <registry.version>4.2.8</registry.version>
     <gbif-common-ws.version>2.1.1</gbif-common-ws.version>
@@ -144,8 +155,8 @@
     <resilience4j.version>1.7.0</resilience4j.version>
 
     <!-- Logging -->
-    <slf4j.version>2.0.17</slf4j.version>
-    <logback.version>1.5.21</logback.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <logback.version>1.2.3</logback.version>
     <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
     <log4j.version>1.2.17</log4j.version>
     <logstash-gelf.version>1.15.1</logstash-gelf.version>
@@ -265,9 +276,34 @@
           <artifactId>maven-plugin-plugin</artifactId>
           <version>${maven-plugin-plugin.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.7.3</version>
+          <configuration>
+            <updatePomFile>true</updatePomFile>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+              <goals><goal>flatten</goal></goals>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+              <goals><goal>clean</goal></goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
