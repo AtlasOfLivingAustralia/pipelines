@@ -48,6 +48,10 @@
 
   <repositories>
     <repository>
+      <id>ala-nexus-public</id>
+      <url>https://nexus.ala.org.au/repository/public/</url>
+    </repository>
+    <repository>
       <id>gbif-release</id>
       <url>https://repository.gbif.org/repository/releases/</url>
     </repository>
@@ -81,6 +85,10 @@
     <pluginRepository>
       <id>gbif-snapshot</id>
       <url>https://repository.gbif.org/repository/snapshots/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>ala-nexus-public</id>
+      <url>https://nexus.ala.org.au/repository/public/</url>
     </pluginRepository>
   </pluginRepositories>
 
