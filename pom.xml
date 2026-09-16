@@ -119,7 +119,7 @@
     <hbase-utils.version>1.0.0</hbase-utils.version>
     <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
     <gbif-occurrence.version>1.1.24</gbif-occurrence.version>
-    <vocabulary-lookup.version>2.0.3</vocabulary-lookup.version>
+    <vocabulary-lookup.version>2.0.10</vocabulary-lookup.version>
     <registry.version>4.2.8</registry.version>
     <gbif-common-ws.version>2.1.1</gbif-common-ws.version>
     <gbif-postal-service.version>2.1.4</gbif-postal-service.version>
@@ -155,8 +155,8 @@
     <resilience4j.version>1.7.0</resilience4j.version>
 
     <!-- Logging -->
-    <slf4j.version>1.7.25</slf4j.version>
-    <logback.version>1.2.3</logback.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <logback.version>1.5.21</logback.version>
     <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
     <log4j.version>1.2.17</log4j.version>
     <logstash-gelf.version>1.15.1</logstash-gelf.version>
@@ -854,6 +854,12 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <!-- Avoid transitive dependencies from dragging in an older logback-core -->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
         <version>${logback.version}</version>
       </dependency>
       <dependency>
