@@ -178,7 +178,7 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     skipKeys.add("extensions");
     skipKeys.add("usage");
     skipKeys.add("classification");
-    skipKeys.add("eventDate");
+    skipKeys.add(DwcTerm.eventDate.simpleName());
     skipKeys.add("hasCoordinate");
     skipKeys.add("hasGeospatialIssue");
     skipKeys.add("gbifId");
@@ -192,11 +192,8 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     skipKeys.add(DwcTerm.recordedByID.simpleName()); // multi value field
     skipKeys.add("machineTags");
     skipKeys.add("parentsLineage");
-    skipKeys.add(
-        "establishmentMeans"); // GBIF treats it as a JSON, but ALA needs a String which is defined
-    skipKeys.add(
-        "degreeOfEstablishment"); // GBIF treats it as a JSON, but ALA needs a String which is
-    // defined
+    skipKeys.add(DwcTerm.establishmentMeans.simpleName());
+    skipKeys.add(DwcTerm.degreeOfEstablishment.simpleName());
     skipKeys.add(DwcTerm.typeStatus.simpleName());
     skipKeys.add(DwcTerm.recordedBy.simpleName()); // Do not use processed recordedBy
     skipKeys.add(DwcTerm.identifiedBy.simpleName());
@@ -614,6 +611,8 @@ public class IndexRecordTransform implements Serializable, IndexFields {
       addTermConceptSafely(
           indexRecord, DwcTerm.degreeOfEstablishment.simpleName(), br.getDegreeOfEstablishment());
       addTermConceptSafely(indexRecord, DwcTerm.lifeStage.simpleName(), br.getLifeStage());
+      addTermConceptSafely(indexRecord, DwcTerm.sex.simpleName(), br.getSex());
+      addTermConceptSafely(indexRecord, DwcTerm.pathway.simpleName(), br.getPathway());
       addTermWithAgentsSafely(
           indexRecord, DwcTerm.recordedByID.simpleName(), br.getRecordedByIds());
       addTermWithAgentsSafely(

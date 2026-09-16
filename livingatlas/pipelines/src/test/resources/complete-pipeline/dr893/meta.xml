@@ -56,5 +56,9 @@
         <field index="47" term="countryConservation"/>
         <field index="48" term="http://rs.tdwg.org/dwc/terms/organismQuantity"/>
         <field index="49" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>
+        <field index="50" term="http://rs.tdwg.org/dwc/terms/sex"/>
+        <field index="51" term="http://rs.tdwg.org/dwc/terms/typeStatus"/>
+        <field index="52" term="http://rs.tdwg.org/dwc/terms/pathway"/>
+        <field index="53" term="http://rs.tdwg.org/dwc/terms/eventType"/>
       </core>
     </archive>

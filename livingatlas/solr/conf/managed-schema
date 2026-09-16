@@ -363,6 +363,7 @@
   <field name="parentEventID"  type="string" docValues="true" indexed="true"/>
   <field name="parentNameUsage"  type="string" docValues="true" indexed="true"/>
   <field name="parentNameUsageID"  type="string" docValues="true" indexed="true"/>
+  <field name="pathway"  type="string" docValues="true" indexed="true"/>
   <field name="phylum"  type="string" docValues="true" indexed="true"/>
   <field name="pointRadiusSpatialFit"  type="string" docValues="true" indexed="true"/>
   <field name="preparations"  type="string" docValues="true" indexed="true" multiValued="true"/>
@@ -653,6 +654,7 @@
   <field name="raw_original"					         type="string"  docValues="true" indexed="true" />
   <field name="raw_phylum"					             type="string"  docValues="true" indexed="true" />
   <field name="raw_phylumID"					         type="string"  docValues="true" indexed="true" />
+  <field name="raw_pathway"					             type="string"  docValues="true" indexed="true" />
   <field name="raw_provenance"					         type="string"  docValues="true" indexed="true" />
   <field name="raw_publisher"					         type="string"  docValues="true" indexed="true" />
   <field name="raw_publisherTitle"					     type="string"  docValues="true" indexed="true" />

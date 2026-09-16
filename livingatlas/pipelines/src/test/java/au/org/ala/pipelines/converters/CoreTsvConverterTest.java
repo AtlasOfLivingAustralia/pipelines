@@ -181,7 +181,7 @@ public class CoreTsvConverterTest {
       "\"br_samplingProtocol\"", // DwcTerm.samplingProtocol
       "\"atxr_ScientificNameAuthorship\"", // DwcTerm.scientificNameAuthorship
       "\"raw_er_scientificNameID\"", // DwcTerm.scientificNameID
-      "\"{concept: sex, lineage: [br_sex], tags: []}\"", // DwcTerm.sex
+      "\"sex\"", // DwcTerm.sex
       "\"raw_er_specificEpithet\"", // DwcTerm.specificEpithet
       "\"111111\"", // DwcTerm.startDayOfYear
       "\"raw_er_subgenus\"", // DwcTerm.subgenus
