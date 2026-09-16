@@ -289,9 +289,10 @@ public class ALAVerbatimToInterpretedPipeline {
         .apply("Write location to avro", locationTransform.write(pathFn));
 
     uniqueRecords
-        .apply("Check location transform condition", measurementOrFactTransform.check(types))
-        .apply("Interpret location", measurementOrFactTransform.interpret())
-        .apply("Write location to avro", measurementOrFactTransform.write(pathFn));
+        .apply(
+            "Check measurementOrFact transform condition", measurementOrFactTransform.check(types))
+        .apply("Interpret measurementOrFact", measurementOrFactTransform.interpret())
+        .apply("Write measurementOrFact to avro", measurementOrFactTransform.write(pathFn));
 
     log.info("Running the pipeline");
     PipelineResult result = p.run();

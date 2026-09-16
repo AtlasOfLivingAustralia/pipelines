@@ -74,7 +74,7 @@ public class CoordinatesParser {
    * Coordinates will try to reproject WGS84. Always return coordinates with success or fail status
    *
    * @param extendedRecord {@link ExtendedRecord} with the fields to parse.
-   * @return {@link ParsedField< GeocodeRequest >} for the coordinates parsed.
+   * @return {@link ParsedField<GeocodeRequest>} for the coordinates parsed.
    */
   public static ParsedField<GeocodeRequest> parseCoords(ExtendedRecord extendedRecord) {
     Set<String> issues = new TreeSet<>();
