@@ -37,3 +37,6 @@ elastic:
   esHosts: ES_HOSTS
   esAlias: ES_ALIAS
   indexNumberShards: 6
+
+java:
+  path: JAVA_PATH

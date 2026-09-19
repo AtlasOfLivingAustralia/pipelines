@@ -42,4 +42,11 @@ public class ALAPipelinesConfigFactory {
   public ALAPipelinesConfig get() {
     return config;
   }
+
+  /** For testing purposes only. */
+  public static void clearInstance() {
+    synchronized (MUTEX) {
+      instance = null;
+    }
+  }
 }

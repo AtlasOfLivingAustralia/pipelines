@@ -313,7 +313,8 @@ public class ALAEventToEsIndexPipeline {
     ElasticsearchIO.ConnectionConfiguration esConfig =
         ElasticsearchIO.ConnectionConfiguration.create(
                 options.getEsHosts(), options.getEsIndexName(), "_doc")
-            .withConnectTimeout(180000);
+            .withConnectTimeout(options.getConnectionTimeout())
+            .withSocketTimeout(options.getSocketTimeout());
 
     if (Objects.nonNull(options.getEsUsername()) && Objects.nonNull(options.getEsPassword())) {
       esConfig =

@@ -303,8 +303,7 @@ public class CollectorNameParser {
       name.append(surnamePrefix.trim()).append(" ");
     }
     if (!Strings.isNullOrEmpty(surname)) {
-      name.append(
-          org.apache.commons.lang3.text.WordUtils.capitalize(surname.toLowerCase(), '-', '\''));
+      name.append(org.apache.commons.text.WordUtils.capitalize(surname.toLowerCase(), '-', '\''));
     }
     if (!Strings.isNullOrEmpty(initials)) {
       name.append(", ");
@@ -328,7 +327,7 @@ public class CollectorNameParser {
       }
 
       if (!Strings.isNullOrEmpty(middlename)) {
-        name.append(" ").append(org.apache.commons.lang3.text.WordUtils.capitalize(middlename));
+        name.append(" ").append(org.apache.commons.text.WordUtils.capitalize(middlename));
       }
     }
     return name.toString().trim();
