@@ -178,7 +178,7 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     skipKeys.add("extensions");
     skipKeys.add("usage");
     skipKeys.add("classification");
-    skipKeys.add("eventDate");
+    skipKeys.add(DwcTerm.eventDate.simpleName());
     skipKeys.add("hasCoordinate");
     skipKeys.add("hasGeospatialIssue");
     skipKeys.add("gbifId");
@@ -192,11 +192,8 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     skipKeys.add(DwcTerm.recordedByID.simpleName()); // multi value field
     skipKeys.add("machineTags");
     skipKeys.add("parentsLineage");
-    skipKeys.add(
-        "establishmentMeans"); // GBIF treats it as a JSON, but ALA needs a String which is defined
-    skipKeys.add(
-        "degreeOfEstablishment"); // GBIF treats it as a JSON, but ALA needs a String which is
-    // defined
+    skipKeys.add(DwcTerm.establishmentMeans.simpleName());
+    skipKeys.add(DwcTerm.degreeOfEstablishment.simpleName());
     skipKeys.add(DwcTerm.typeStatus.simpleName());
     skipKeys.add(DwcTerm.recordedBy.simpleName()); // Do not use processed recordedBy
     skipKeys.add(DwcTerm.identifiedBy.simpleName());
@@ -609,10 +606,13 @@ public class IndexRecordTransform implements Serializable, IndexFields {
 
   private static void applyBasicRecord(BasicRecord br, IndexRecord.Builder indexRecord) {
     if (br != null) {
-      addEstablishmentValueSafely(
+      addTermConceptSafely(
           indexRecord, DwcTerm.establishmentMeans.simpleName(), br.getEstablishmentMeans());
-      addDegreeOfEstablishmentValueSafely(
+      addTermConceptSafely(
           indexRecord, DwcTerm.degreeOfEstablishment.simpleName(), br.getDegreeOfEstablishment());
+      addTermConceptSafely(indexRecord, DwcTerm.lifeStage.simpleName(), br.getLifeStage());
+      addTermConceptSafely(indexRecord, DwcTerm.sex.simpleName(), br.getSex());
+      addTermConceptSafely(indexRecord, DwcTerm.pathway.simpleName(), br.getPathway());
       addTermWithAgentsSafely(
           indexRecord, DwcTerm.recordedByID.simpleName(), br.getRecordedByIds());
       addTermWithAgentsSafely(
@@ -811,17 +811,10 @@ public class IndexRecordTransform implements Serializable, IndexFields {
     }
   }
 
-  private static void addEstablishmentValueSafely(
-      IndexRecord.Builder indexRecord, String field, VocabularyConcept establishmentMeans) {
-    if (establishmentMeans != null) {
-      indexRecord.getStrings().put(field, establishmentMeans.getConcept());
-    }
-  }
-
-  private static void addDegreeOfEstablishmentValueSafely(
-      IndexRecord.Builder indexRecord, String field, VocabularyConcept degreeOfEstablishment) {
-    if (degreeOfEstablishment != null) {
-      indexRecord.getStrings().put(field, degreeOfEstablishment.getConcept());
+  private static void addTermConceptSafely(
+      IndexRecord.Builder indexRecord, String field, VocabularyConcept vocabularyConcept) {
+    if (vocabularyConcept != null) {
+      indexRecord.getStrings().put(field, vocabularyConcept.getConcept());
     }
   }
 

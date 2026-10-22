@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URL;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -22,6 +23,18 @@ public class ElasticUtils {
     SearchRequest searchRequest = new SearchRequest(indexName);
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
     searchSourceBuilder.query(QueryBuilders.matchQuery(term, value));
+    searchRequest.source(searchSourceBuilder);
+    SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+    return searchResponse.getHits().getTotalHits().value;
+  }
+
+  public static Long getNestedRecordCount(String indexName, String path, String term, String value)
+      throws Exception {
+    RestHighLevelClient client = getRestHighLevelClient();
+    SearchRequest searchRequest = new SearchRequest(indexName);
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    searchSourceBuilder.query(
+        QueryBuilders.nestedQuery(path, QueryBuilders.matchQuery(term, value), ScoreMode.Avg));
     searchRequest.source(searchSourceBuilder);
     SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
     return searchResponse.getHits().getTotalHits().value;

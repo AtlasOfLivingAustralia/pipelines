@@ -5,11 +5,12 @@
   <parent>
     <groupId>org.gbif.pipelines</groupId>
     <artifactId>gbif</artifactId>
-   <version>3.2.24</version>
+    <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>identifiers</artifactId>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <name>Pipelines :: GBIF :: Identifiers</name>

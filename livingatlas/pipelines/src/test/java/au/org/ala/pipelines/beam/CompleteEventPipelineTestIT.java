@@ -93,6 +93,41 @@ public class CompleteEventPipelineTestIT {
         ElasticUtils.getRecordCount(INDEX_NAME, "occurrence.eventHierarchy", "event1");
     assertEquals(2, occSurveyIDCount);
 
+    long occTaxonKingdomCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME, "occurrence.taxonomy", "occurrence.taxonomy.name", "Animalia");
+    assertEquals(2, occTaxonKingdomCount);
+
+    long occTaxonPhylumCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME, "occurrence.taxonomy", "occurrence.taxonomy.name", "Chordata");
+    assertEquals(2, occTaxonPhylumCount);
+
+    long occTaxonSpeciesCount =
+        ElasticUtils.getNestedRecordCount(
+            INDEX_NAME,
+            "occurrence.taxonomy",
+            "occurrence.taxonomy.name",
+            "Latropiscis purpurissatus");
+    assertEquals(2, occTaxonSpeciesCount);
+
+    long occSpeciesSexCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrence.sex.concept", "Male");
+    assertEquals(2, occSpeciesSexCount);
+
+    long occLifeStageCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrence.lifeStage.concept", "Adult");
+    assertEquals(1, occLifeStageCount);
+
+    long occTypeStatusCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrence.typeStatus.concepts", "Isotype");
+    assertEquals(1, occTypeStatusCount);
+
+    long degreeOfEstablishmentCount =
+        ElasticUtils.getRecordCount(
+            INDEX_NAME, "occurrence.degreeOfEstablishment.concept", "captive");
+    assertEquals(1, degreeOfEstablishmentCount);
+
     // check total documents indexed
     long allCount = ElasticUtils.getRecordCount(INDEX_NAME);
     assertEquals(7, allCount);

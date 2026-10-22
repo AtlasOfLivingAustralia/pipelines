@@ -34,7 +34,7 @@ public class EBirdCompleteEventPipelineTestIT {
   public void testIngestPipeline() throws Exception {
 
     // clear up previous test runs
-    FileUtils.deleteQuietly(new File("/tmp/la-pipelines-test/complete-event-pipeline"));
+    FileUtils.deleteQuietly(new File("/tmp/la-pipelines-test/complete-event-pipeline-ebird"));
 
     String absolutePath = new File("src/test/resources").getAbsolutePath();
 
@@ -113,7 +113,7 @@ public class EBirdCompleteEventPipelineTestIT {
               "--attempt=1",
               "--runner=DirectRunner",
               "--metaFileName=" + ValidationUtils.VERBATIM_METRICS,
-              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline",
+              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
               "--inputPath=" + inputPath
             });
     ALADwcaToVerbatimPipeline.run(dwcaOptions);
@@ -130,8 +130,8 @@ public class EBirdCompleteEventPipelineTestIT {
               "--runner=SparkRunner",
               "--interpretationTypes=ALL",
               "--metaFileName=" + ValidationUtils.INTERPRETATION_METRICS,
-              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline",
-              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline/"
+              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
+              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird/"
                   + datasetID
                   + "/1/verbatim/*.avro",
               "--properties=" + itUtils.getPropertiesFilePath(),
@@ -150,8 +150,8 @@ public class EBirdCompleteEventPipelineTestIT {
               "--attempt=1",
               "--runner=DirectRunner",
               "--metaFileName=" + ValidationUtils.UUID_METRICS,
-              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline",
-              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline",
+              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
+              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
               "--properties=" + itUtils.getPropertiesFilePath(),
               "--useExtendedRecordId=true"
             });
@@ -168,8 +168,8 @@ public class EBirdCompleteEventPipelineTestIT {
               "--attempt=1",
               "--runner=SparkRunner",
               "--metaFileName=" + ValidationUtils.SENSITIVE_METRICS,
-              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline",
-              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline",
+              "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
+              "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
               "--properties=" + itUtils.getPropertiesFilePath(),
               "--useExtendedRecordId=true"
             });
@@ -185,8 +185,8 @@ public class EBirdCompleteEventPipelineTestIT {
           "--datasetId=" + datasetID,
           "--attempt=1",
           "--runner=SparkRunner",
-          "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline",
-          "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline",
+          "--targetPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
+          "--inputPath=/tmp/la-pipelines-test/complete-event-pipeline-ebird",
           "--esSchemaPath=" + esSchemaPath,
           "--esAlias=" + INDEX_NAME,
           "--esIndexName=" + INDEX_NAME + "_" + datasetID,

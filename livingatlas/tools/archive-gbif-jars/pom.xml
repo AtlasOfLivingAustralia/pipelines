@@ -1,0 +1,143 @@
+<!-- Only run this once to deploy the gbif occurrence artifacts into ALA nexus only if there's an upgrade
+To run:
+cd livingatlas
+mvn -f tools/archive-gbif-jars/pom.xml deploy
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif.pipelines</groupId>
+    <artifactId>pipelines-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../../../pom.xml</relativePath>
+  </parent>
+
+  <groupId>au.org.ala.tools</groupId>
+  <artifactId>archive-gbif-jars</artifactId>
+  <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.1.2</version>
+
+        <executions>
+          <execution>
+            <id>default-deploy</id>
+            <phase>deploy</phase>
+            <!-- Need skip configuration to make sure this pom file is not stored in the repository -->
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>deploy-occurrence-hdfs-table</id>
+            <phase>deploy</phase>
+            <goals><goal>deploy-file</goal></goals>
+            <configuration>
+             <groupId>org.gbif.occurrence</groupId>
+              <artifactId>occurrence-hdfs-table</artifactId>
+              <version>${gbif-occurrence.version}</version>
+              <packaging>jar</packaging>
+              <file>${project.basedir}/jars/occurrence-hdfs-table-${gbif-occurrence.version}.jar</file>
+              <pomFile>${project.basedir}/jars/occurrence-hdfs-table-${gbif-occurrence.version}.pom</pomFile>
+              <url>https://nexus.ala.org.au/repository/maven-releases/</url>
+              <repositoryId>ala-nexus-releases</repositoryId>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>deploy-occurrence-common</id>
+            <phase>deploy</phase>
+            <goals><goal>deploy-file</goal></goals>
+            <configuration>
+              <groupId>org.gbif.occurrence</groupId>
+              <artifactId>occurrence-common</artifactId>
+              <version>${gbif-occurrence.version}</version>
+              <packaging>jar</packaging>
+              <file>${project.basedir}/jars/occurrence-common-${gbif-occurrence.version}.jar</file>
+              <pomFile>${project.basedir}/jars/occurrence-common-${gbif-occurrence.version}.pom</pomFile>
+              <url>https://nexus.ala.org.au/repository/maven-releases/</url>
+              <repositoryId>ala-nexus-releases</repositoryId>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>deploy-maven-extension-avsc-schema-generator</id>
+            <phase>deploy</phase>
+            <goals><goal>deploy-file</goal></goals>
+            <configuration>
+              <groupId>org.gbif.occurrence</groupId>
+              <artifactId>maven-extension-avsc-schema-generator</artifactId>
+              <version>${gbif-occurrence.version}</version>
+              <packaging>jar</packaging>
+              <file>${project.basedir}/jars/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.jar</file>
+              <pomFile>${project.basedir}/jars/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.pom</pomFile>
+              <url>https://nexus.ala.org.au/repository/maven-releases/</url>
+              <repositoryId>ala-nexus-releases</repositoryId>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+
+          <!-- maven-deploy-plugin cannot deploy straight from the local repository.
+               Explicitly copy the jars into a temporary jars/ folder first. -->
+          <execution>
+            <id>copy-gbif-jars-from-local-repo</id>
+            <phase>generate-resources</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.basedir}/jars"/>
+
+                <copy file="${settings.localRepository}/org/gbif/occurrence/occurrence-hdfs-table/${gbif-occurrence.version}/occurrence-hdfs-table-${gbif-occurrence.version}.jar"
+                      tofile="${project.basedir}/jars/occurrence-hdfs-table-${gbif-occurrence.version}.jar"/>
+                <copy file="${settings.localRepository}/org/gbif/occurrence/occurrence-hdfs-table/${gbif-occurrence.version}/occurrence-hdfs-table-${gbif-occurrence.version}.pom"
+                      tofile="${project.basedir}/jars/occurrence-hdfs-table-${gbif-occurrence.version}.pom"/>
+
+                <copy file="${settings.localRepository}/org/gbif/occurrence/occurrence-common/${gbif-occurrence.version}/occurrence-common-${gbif-occurrence.version}.jar"
+                      tofile="${project.basedir}/jars/occurrence-common-${gbif-occurrence.version}.jar"/>
+                <copy file="${settings.localRepository}/org/gbif/occurrence/occurrence-common/${gbif-occurrence.version}/occurrence-common-${gbif-occurrence.version}.pom"
+                      tofile="${project.basedir}/jars/occurrence-common-${gbif-occurrence.version}.pom"/>
+
+                <copy file="${settings.localRepository}/org/gbif/occurrence/maven-extension-avsc-schema-generator/${gbif-occurrence.version}/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.jar"
+                      tofile="${project.basedir}/jars/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.jar"/>
+                <copy file="${settings.localRepository}/org/gbif/occurrence/maven-extension-avsc-schema-generator/${gbif-occurrence.version}/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.pom"
+                      tofile="${project.basedir}/jars/maven-extension-avsc-schema-generator-${gbif-occurrence.version}.pom"/>
+              </target>
+            </configuration>
+          </execution>
+
+          <!-- Runs after maven-deploy-plugin's deploy-file executions above, since this
+               plugin block is declared later in the file. Only reached if all three
+               deploys succeeded (a failure earlier aborts the build first). -->
+          <execution>
+            <id>cleanup-copied-jars</id>
+            <phase>deploy</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target>
+                <delete>
+                  <fileset dir="${project.basedir}/jars" includes="*.jar,*.pom"/>
+                </delete>
+              </target>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>

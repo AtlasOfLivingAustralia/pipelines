@@ -531,8 +531,16 @@
           "type": "keyword"
         },
         "sex": {
-          "type": "keyword",
-          "copy_to": "all"
+          "type": "object",
+          "properties": {
+            "concept": {
+              "type": "keyword"
+            },
+            "lineage": {
+              "type": "keyword",
+              "copy_to": "all"
+            }
+          }
         },
         "lifeStage": {
           "type": "object",
@@ -586,8 +594,16 @@
           "type": "integer"
         },
         "typeStatus": {
-          "type": "keyword",
-          "copy_to": "all"
+          "type": "object",
+          "properties": {
+            "concepts": {
+              "type": "keyword"
+            },
+            "lineage": {
+              "type": "keyword",
+              "copy_to": "all"
+            }
+          }
         },
         "typifiedName": {
           "type": "keyword",

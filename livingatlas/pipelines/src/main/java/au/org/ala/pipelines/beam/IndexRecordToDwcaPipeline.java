@@ -141,7 +141,7 @@ public class IndexRecordToDwcaPipeline {
       while (iter.hasNext()) {
         LocatedFileStatus locatedFileStatus = iter.next();
         Path path = locatedFileStatus.getPath();
-        if (fs.isFile(path)) {
+        if (fs.getFileStatus(path).isFile()) {
           log.info("Transferring " + path.toString() + " to " + dwcaOutputPath);
           fs.copyToLocalFile(false, path, new Path(dwcaOutputPath + "/" + path.getName()), false);
         }

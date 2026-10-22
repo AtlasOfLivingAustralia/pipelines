@@ -42,6 +42,10 @@
     <field index="6" term="http://rs.tdwg.org/dwc/terms/order"/>
     <field index="7" term="http://rs.tdwg.org/dwc/terms/family"/>
     <field index="8" term="http://rs.tdwg.org/dwc/terms/individualCount"/>
+    <field index="9" term="http://rs.tdwg.org/dwc/terms/sex"/>
+    <field index="10" term="http://rs.tdwg.org/dwc/terms/typeStatus"/>
+    <field index="11" term="http://rs.tdwg.org/dwc/terms/degreeOfEstablishment"/>
+    <field index="12" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>
   </extension>
   <extension rowType="http://rs.tdwg.org/dwc/terms/MeasurementOrFact" encoding="UTF-8" fieldsTerminatedBy="," linesTerminatedBy="\r\n" fieldsEnclosedBy="&quot;" ignoreHeaderLines="1">
     <files>

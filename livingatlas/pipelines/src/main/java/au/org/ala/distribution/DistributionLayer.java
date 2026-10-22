@@ -1,7 +1,8 @@
 package au.org.ala.distribution;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DistributionLayer {
   private int gid;
   private String data_resource_uid;
@@ -28,7 +29,10 @@ public class DistributionLayer {
   private String bounding_box;
   private String group_name;
   private Boolean endemic;
+
+  @JsonProperty("imageUrl")
   private String image_url;
+
   private String family_lsid;
   private String specific_n;
   private String wmsurl;

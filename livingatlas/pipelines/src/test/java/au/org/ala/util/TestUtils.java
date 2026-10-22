@@ -150,7 +150,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr1")) {
+              if (request.getPath().startsWith("/v2/download/dr1")) {
 
                 Source source =
                     Okio.source(new File("src/test/resources/species-lists/test-list.csv"));
@@ -164,7 +164,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr2")) {
+              if (request.getPath().startsWith("/v2/download/dr2")) {
 
                 Source source =
                     Okio.source(new File("src/test/resources/species-lists/test-list2.csv"));
@@ -178,7 +178,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr3")) {
+              if (request.getPath().startsWith("/v2/download/dr3")) {
                 Source source = Okio.source(new File("src/test/resources/species-lists/griis.csv"));
                 Buffer buffer = new Buffer();
                 buffer.writeAll(source);
