@@ -94,6 +94,14 @@ public class ClusteringPipeline {
 
     final Integer candidatesCutoff = options.getCandidatesCutoff();
 
+    // A hash-key group with >= candidatesCutoff members is dropped downstream, so we never need to
+    // materialise more than candidatesCutoff of them. Capping the per-key list here keeps memory at
+    // O(candidatesCutoff) instead of O(group size) and prevents OOM on hot keys (e.g. a species +
+    // location + date shared by hundreds of thousands of records). Full materialisation is kept
+    // only when debug AVRO output is requested.
+    final int candidatesCap =
+        options.isOutputDebugAvro() ? Integer.MAX_VALUE : candidatesCutoff;
+
     // create hashes for everything
     PCollection<HashKeyOccurrence> hashAll =
         indexRecords.apply(
@@ -261,7 +269,13 @@ public class ClusteringPipeline {
                           OutputReceiver<ClusteringCandidates> out) {
 
                         List<HashKeyOccurrence> result = new ArrayList<>();
-                        source.getValue().iterator().forEachRemaining(result::add);
+                        Iterator<HashKeyOccurrence> it = source.getValue().iterator();
+                        // Bounded collection: stop once we reach the cutoff. A group this large is
+                        // dropped by the candidatesCutoff check downstream, so materialising the
+                        // whole (potentially huge) member list would be wasted work and memory.
+                        while (it.hasNext() && result.size() < candidatesCap) {
+                          result.add(it.next());
+                        }
 
                         if (result.size() > 1) {
                           out.output(
