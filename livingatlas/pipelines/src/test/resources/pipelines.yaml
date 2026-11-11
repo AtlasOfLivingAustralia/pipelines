@@ -31,9 +31,10 @@ speciesListService:
   wsUrl: http://localhost:LISTS_PORT
   timeoutSec: 70
 samplingService:
-  wsUrl: http://localhost:SPATIAL_PORT
-#  wsUrl: https://sampling.ala.org.au/sampling-service/
-  timeoutSec: 70
+  wsConfig:
+    wsUrl: http://localhost:SPATIAL_PORT
+  #  wsUrl: https://sampling.ala.org.au/sampling-service/
+    timeoutSec: 70
 sds:
   wsUrl: http://localhost:SDS_PORT
   timeoutSec: 70

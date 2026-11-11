@@ -2,8 +2,6 @@ package org.gbif.pipelines.core.config.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,14 +12,16 @@ public final class SamplingConfig implements Serializable {
 
   private static final long serialVersionUID = -9019714539955270671L;
 
+  private WsConfig wsConfig;
+
   // ws path
-  private String wsUrl;
+  // private String wsUrl;
 
   // timeout in seconds
-  private long timeoutSec = 60L;
+  // private long timeoutSec = 60L;
 
   // cache size in bytes
-  private long cacheSizeMb = 64L;
+  // private long cacheSizeMb = 64L;
 
   // sampling batch size
   private int batchSize = 25000;
@@ -33,8 +33,8 @@ public final class SamplingConfig implements Serializable {
   private int downloadRetries = 5;
 
   // http headers to add to each request
-  private Map<String, String> httpHeaders = Collections.emptyMap();
+  // private Map<String, String> httpHeaders = Collections.emptyMap();
 
   // Retry configuration
-  private RetryConfig retryConfig = new RetryConfig();
+  // private RetryConfig retryConfig = new RetryConfig();
 }

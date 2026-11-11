@@ -6,6 +6,7 @@ import au.org.ala.pipelines.options.AllDatasetsPipelinesOptions;
 import au.org.ala.pipelines.options.SamplingPipelineOptions;
 import au.org.ala.utils.ALAFsUtils;
 import au.org.ala.utils.CombinedYamlConfiguration;
+import au.org.ala.utils.WsUtils;
 import com.google.common.collect.Iterables;
 import java.io.*;
 import java.net.URL;
@@ -33,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
  * A utility to crawl the ALA layers. Requires an input csv containing lat, lng (no header) and an
@@ -76,15 +76,19 @@ public class LayerCrawler {
             .get();
 
     MDC.put("step", "SAMPLING");
+    /*
     retrofit =
         new Retrofit.Builder()
             .baseUrl(config.getSamplingService().getWsUrl())
             .addConverterFactory(JacksonConverterFactory.create())
             .validateEagerly(true)
             .build();
+    */
 
     log.info("Initialising crawler....");
-    service = retrofit.create(SamplingService.class);
+    service =
+        WsUtils.createClient(config.getSamplingService().getWsConfig(), SamplingService.class);
+    // service = retrofit.create(SamplingService.class);
     log.info("Initialised.");
 
     FileSystem fs =

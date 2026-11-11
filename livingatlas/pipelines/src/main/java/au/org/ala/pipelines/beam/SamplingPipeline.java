@@ -79,7 +79,7 @@ public class SamplingPipeline {
 
     log.info("Checking for new layers in the system");
     SamplingService samplingService =
-        SamplingUtils.initSamplingService(config.getSamplingService().getWsUrl());
+        SamplingUtils.initSamplingService(config.getSamplingService());
 
     boolean newLayersAvailable = newLayersAddedSinceLastSample(samplingService, options, fs);
 

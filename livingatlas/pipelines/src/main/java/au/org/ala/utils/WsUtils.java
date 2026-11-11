@@ -39,6 +39,19 @@ public class WsUtils {
         .build();
   }
 
+  public static <T> T createClient(WsConfig wsConfig, Class<T> theClass, ObjectMapper om) {
+
+    OkHttpClient okHttpClient = createOKClient(wsConfig);
+
+    return new retrofit2.Retrofit.Builder()
+        .client(okHttpClient)
+        .baseUrl(wsConfig.getWsUrl())
+        .addConverterFactory(JacksonConverterFactory.create(om))
+        .validateEagerly(true)
+        .build()
+        .create(theClass);
+  }
+
   public static <T> T createClient(WsConfig wsConfig, Class<T> theClass) {
 
     OkHttpClient okHttpClient = createOKClient(wsConfig);
