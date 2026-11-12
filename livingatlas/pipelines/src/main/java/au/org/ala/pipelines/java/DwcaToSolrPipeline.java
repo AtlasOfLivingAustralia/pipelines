@@ -847,7 +847,7 @@ public class DwcaToSolrPipeline {
         hdfsConfigs,
         indexRecordSortedPath,
         outputPath,
-        config.getSamplingService().getWsUrl(),
+        config.getSamplingService().getWsConfig().getWsUrl(),
         config.getSamplingService().getBatchStatusSleepTime(),
         config.getSamplingService().getBatchSize(),
         config.getSamplingService().getDownloadRetries());

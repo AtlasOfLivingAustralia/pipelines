@@ -1,5 +1,6 @@
 package org.gbif.pipelines.core.config.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Collections;
@@ -37,4 +38,15 @@ public final class SamplingConfig implements Serializable {
 
   // Retry configuration
   private RetryConfig retryConfig = new RetryConfig();
+
+  @JsonIgnore
+  public WsConfig getWsConfig() {
+    WsConfig config = new WsConfig();
+    config.setWsUrl(wsUrl);
+    config.setTimeoutSec(timeoutSec);
+    config.setCacheSizeMb(cacheSizeMb);
+    config.setHttpHeaders(httpHeaders);
+    config.setRetryConfig(retryConfig);
+    return config;
+  }
 }
