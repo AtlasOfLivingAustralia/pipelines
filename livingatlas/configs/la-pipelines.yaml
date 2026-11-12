@@ -60,9 +60,8 @@ speciesListService:
   wsUrl: https://lists.ala.org.au
   timeoutSec: 70
 samplingService:
-  wsConfig:
-    wsUrl: https://sampling.ala.org.au/sampling-service/
-    timeoutSec: 70
+  wsUrl: https://sampling.ala.org.au/sampling-service/
+  timeoutSec: 70
   batchSize: 25000
   batchStatusSleepTime: 1000
   downloadRetries: 5
