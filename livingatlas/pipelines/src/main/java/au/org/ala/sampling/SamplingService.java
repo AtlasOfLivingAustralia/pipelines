@@ -19,6 +19,7 @@ public interface SamplingService {
   Call<List<Layer>> getLayers();
 
   /** Return an inventory of layers in the ALA spatial portal */
+  @Headers("Cache-Control: no-cache, no-store")
   @GET("intersect/batch/{id}")
   Call<BatchStatus> getBatchStatus(@Path("id") String id);
 

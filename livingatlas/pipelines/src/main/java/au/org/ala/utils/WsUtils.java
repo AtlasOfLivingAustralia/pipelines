@@ -90,7 +90,9 @@ public class WsUtils {
         new OkHttpClient.Builder()
             .connectTimeout(config.getTimeoutSec(), TimeUnit.SECONDS)
             .readTimeout(config.getTimeoutSec(), TimeUnit.SECONDS);
-    clientBuilder.cache(createCache(config.getCacheSizeMb()));
+    if (config.getCacheSizeMb() > 0) {
+      clientBuilder.cache(createCache(config.getCacheSizeMb()));
+    }
     clientBuilder.addInterceptor(
         chain -> {
           Request.Builder builder = chain.request().newBuilder();
