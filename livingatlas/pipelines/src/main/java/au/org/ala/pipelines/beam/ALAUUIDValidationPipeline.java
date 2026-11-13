@@ -9,6 +9,7 @@ import au.org.ala.kvs.client.ALACollectoryMetadata;
 import au.org.ala.pipelines.options.UUIDPipelineOptions;
 import au.org.ala.pipelines.util.VersionInfo;
 import au.org.ala.utils.CombinedYamlConfiguration;
+import au.org.ala.utils.ValidationResult;
 import au.org.ala.utils.ValidationUtils;
 import java.io.IOException;
 import java.util.*;
@@ -56,7 +57,14 @@ public class ALAUUIDValidationPipeline {
     MDC.put("attempt", options.getAttempt().toString());
     MDC.put("step", "VALIDATE_UUID");
     PipelinesOptionsFactory.registerHdfs(options);
-    run(options);
+    try {
+      run(options);
+    } catch (Exception e) {
+      log.error("Validation failed for dataset {}: {}", options.getDatasetId(), e.getMessage(), e);
+      // FIXME: Issue logged here:
+      // https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
+      System.exit(1);
+    }
     // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
     System.exit(0);
   }
@@ -274,12 +282,25 @@ public class ALAUUIDValidationPipeline {
         "Validation finished. Results written to: {}",
         getValidationFilePath(options, VALIDATION_REPORT_FILE));
 
-    if (!ValidationUtils.checkValidationFile(options).getValid()
-        && options.getThrowErrorOnValidationFail()) {
-      throw new RuntimeException(
-          "Validation of dataset failed. Check validation file at: "
+    ValidationResult validationResult = ValidationUtils.checkValidationFile(options);
+    if (!validationResult.getValid()) {
+      ValidationUtils.failOrWarn(
+          failOnValidationError(options),
+          validationResult.getMessage(),
+          "Validation of dataset "
+              + options.getDatasetId()
+              + " failed. Check validation file at: "
               + getValidationFilePath(options, VALIDATION_REPORT_FILE));
     }
+  }
+
+  /**
+   * Whether a dataset that fails validation should fail the step. Honours the deprecated {@code
+   * throwErrorOnValidationFail} as well as {@code failOnDatasetError}.
+   */
+  static boolean failOnValidationError(UUIDPipelineOptions options) {
+    return ValidationUtils.failOnDatasetError(options)
+        || Boolean.TRUE.equals(options.getThrowErrorOnValidationFail());
   }
 
   @NotNull

@@ -2,6 +2,7 @@ package au.org.ala.utils;
 
 import static org.junit.Assert.*;
 
+import au.org.ala.pipelines.beam.ALAInterpretationPipelineOptions;
 import au.org.ala.pipelines.options.IndexingPipelineOptions;
 import au.org.ala.util.TestUtils;
 import java.io.File;
@@ -10,6 +11,46 @@ import org.gbif.pipelines.common.beam.options.PipelinesOptionsFactory;
 import org.junit.Test;
 
 public class ValidationUtilsTest {
+
+  @Test
+  public void testFailOrWarnOnlyLogsWhenDisabled() {
+    // the historical behaviour: the caller carries on and the JVM exits with 0
+    ValidationUtils.failOrWarn(false, ValidationUtils.NO_VERBATIM, "no verbatim for dr1");
+  }
+
+  @Test
+  public void testFailOrWarnThrowsWhenEnabled() {
+    try {
+      ValidationUtils.failOrWarn(true, ValidationUtils.NO_VERBATIM, "no verbatim for dr1");
+      fail("Expected a DatasetProcessingException");
+    } catch (DatasetProcessingException e) {
+      assertEquals(ValidationUtils.NO_VERBATIM, e.getReason());
+      assertEquals("no verbatim for dr1", e.getMessage());
+    }
+  }
+
+  @Test
+  public void testFailOnDatasetErrorDefaultsToFalse() {
+    IndexingPipelineOptions options =
+        PipelinesOptionsFactory.create(
+            IndexingPipelineOptions.class,
+            new String[] {"--datasetId=dr123", "--attempt=1", "--runner=DirectRunner"});
+    assertFalse(ValidationUtils.failOnDatasetError(options));
+  }
+
+  @Test
+  public void testFailOnDatasetErrorIsReadFromOptions() {
+    ALAInterpretationPipelineOptions options =
+        PipelinesOptionsFactory.create(
+            ALAInterpretationPipelineOptions.class,
+            new String[] {
+              "--datasetId=dr123",
+              "--attempt=1",
+              "--runner=DirectRunner",
+              "--failOnDatasetError=true"
+            });
+    assertTrue(ValidationUtils.failOnDatasetError(options));
+  }
 
   @Test
   public void testIsNotValidNoDir() throws Exception {

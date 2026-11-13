@@ -5,7 +5,8 @@ import org.apache.beam.sdk.options.Description;
 import org.gbif.pipelines.common.beam.options.InterpretationPipelineOptions;
 
 /** Options for running UUID based pipelines. */
-public interface UUIDPipelineOptions extends InterpretationPipelineOptions {
+public interface UUIDPipelineOptions
+    extends InterpretationPipelineOptions, FailOnDatasetErrorOptions {
 
   @Description("The number of backups to keep")
   @Default.Integer(10)
@@ -25,6 +26,12 @@ public interface UUIDPipelineOptions extends InterpretationPipelineOptions {
 
   void setOverridePercentageCheck(Boolean overridePercentageCheck);
 
+  /**
+   * @deprecated superseded by {@link FailOnDatasetErrorOptions#getFailOnDatasetError()}, which
+   *     covers every condition that stops a dataset being processed, not just the validation
+   *     report. Still honoured so existing configurations keep working.
+   */
+  @Deprecated
   @Description("Throw error on validation fail")
   @Default.Boolean(false)
   Boolean getThrowErrorOnValidationFail();

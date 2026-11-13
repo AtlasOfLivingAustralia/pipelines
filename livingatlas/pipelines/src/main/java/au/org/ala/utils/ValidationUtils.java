@@ -3,6 +3,7 @@ package au.org.ala.utils;
 import static au.org.ala.pipelines.beam.ALAUUIDMintingPipeline.UNIQUE_COMPOSITE_KEY_JOIN_CHAR;
 import static java.util.stream.Collectors.joining;
 
+import au.org.ala.pipelines.options.FailOnDatasetErrorOptions;
 import au.org.ala.pipelines.options.IndexingPipelineOptions;
 import au.org.ala.pipelines.options.UUIDPipelineOptions;
 import java.io.FileNotFoundException;
@@ -15,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -43,6 +45,7 @@ public class ValidationUtils {
   public static final String NOT_INDEXED = "NOT_INDEXED";
   public static final String HAS_EMPTY_KEYS = "HAS_EMPTY_KEYS";
   public static final String HAS_DUPLICATES = "HAS_DUPLICATES";
+  public static final String UUID_CHANGE_BLOCKED = "UUID_CHANGE_BLOCKED";
 
   public static final String IMAGE_SERVICE_METRICS = "image-service-metrics.yml";
   public static final String UUID_METRICS = "uuid-metrics.yml";
@@ -62,6 +65,39 @@ public class ValidationUtils {
   public static final String DUPLICATE_KEYS_OUTPUT = "duplicateKeys.csv";
   public static final String UNIQUE_TERMS_SPECIFIED = "uniqueTermsSpecified";
   public static final String METADATA_AVAILABLE = "metadataAvailable";
+
+  /**
+   * Whether the pipeline should exit non-zero when it cannot process a dataset.
+   *
+   * @see FailOnDatasetErrorOptions
+   */
+  public static boolean failOnDatasetError(PipelineOptions options) {
+    return Boolean.TRUE.equals(options.as(FailOnDatasetErrorOptions.class).getFailOnDatasetError());
+  }
+
+  /**
+   * Reports a condition that stops the dataset being processed any further.
+   *
+   * <p>When {@code failOnDatasetError} is set the condition is raised as a {@link
+   * DatasetProcessingException}, which the pipeline's {@code main} turns into a non-zero exit code.
+   * Otherwise it is only logged, which is the historical behaviour: the step returns normally and
+   * the orchestrating job sees a success for a dataset that will not reach the index.
+   *
+   * @param failOnDatasetError whether to raise the condition as an error
+   * @param reason machine readable reason, one of the constants of this class
+   * @param message human readable explanation, logged and used as the exception message
+   */
+  public static void failOrWarn(boolean failOnDatasetError, String reason, String message) {
+    if (failOnDatasetError) {
+      log.error("{} [{}]", message, reason);
+      throw new DatasetProcessingException(reason, message);
+    }
+    log.error(
+        "{} [{}]. Continuing and exiting successfully because failOnDatasetError is not set, "
+            + "so this dataset will be missing from the index without the job failing.",
+        message,
+        reason);
+  }
 
   /** Checks a dataset can be indexed. */
   public static ValidationResult checkReadyForIndexing(IndexingPipelineOptions options) {
