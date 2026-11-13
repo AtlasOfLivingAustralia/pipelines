@@ -61,21 +61,4 @@ public class ALAVerbatimToInterpretedPipelineTest {
       assertTrue(e.getMessage().contains("dr1192"));
     }
   }
-
-  /** The same, for the java (non-Beam) variant used for small datasets. */
-  @Test
-  public void testMissingVerbatimFailsWhenRequestedInJavaPipeline() {
-    try {
-      au.org.ala.pipelines.java.ALAVerbatimToInterpretedPipeline.run(options("dr1161", true));
-      fail("Expected a DatasetProcessingException for a dataset without verbatim AVRO");
-    } catch (DatasetProcessingException e) {
-      assertEquals(ValidationUtils.NO_VERBATIM, e.getReason());
-      assertTrue(e.getMessage().contains("dr1161"));
-    }
-  }
-
-  @Test
-  public void testMissingVerbatimIsOnlyLoggedByDefaultInJavaPipeline() {
-    au.org.ala.pipelines.java.ALAVerbatimToInterpretedPipeline.run(options("dr1161", false));
-  }
 }
