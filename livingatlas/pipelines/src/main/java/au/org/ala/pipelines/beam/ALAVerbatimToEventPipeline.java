@@ -89,8 +89,10 @@ public class ALAVerbatimToEventPipeline {
 
   public static void main(String[] args) throws IOException {
     String[] combinedArgs = new CombinedYamlConfiguration(args).toArgs("general", "interpret");
-    InterpretationPipelineOptions options =
-        PipelinesOptionsFactory.createInterpretation(combinedArgs);
+    // ALAInterpretationPipelineOptions, not the plain InterpretationPipelineOptions, so that this
+    // pipeline accepts every option of the "interpret" config section it is given
+    ALAInterpretationPipelineOptions options =
+        PipelinesOptionsFactory.create(ALAInterpretationPipelineOptions.class, combinedArgs);
     run(options);
   }
 

@@ -170,6 +170,11 @@ interpret:
   # Skips GBIF id generation and copies ids from ExtendedRecord ids
   useExtendedRecordId: true
   runner: SparkRunner
+  # Exit non-zero when the dataset cannot be interpreted at all (no verbatim AVRO, or the dataset
+  # is no longer in the collectory), instead of logging an error and exiting successfully.
+  # Only enable it if the batch runs each dataset in isolation, otherwise the first failing
+  # dataset stops the rest of the batch.
+  failOnDatasetError: false
 
 # class: au.org.ala.pipelines.beam.ALAUUIDMintingPipeline
 uuid:
@@ -178,7 +183,14 @@ uuid:
   inputPath: '{fsPath}/pipelines-data'
   numberOfBackupsToKeep: 10
   percentageChangeAllowed: 50
+  # Fail on anything the validation report rejects, data problems included
   throwErrorOnValidationFail: false
+  # Exit non-zero when the dataset cannot be given UUIDs at all (not in the collectory, or the
+  # UUID change was blocked), instead of logging an error and exiting successfully. What the
+  # validation report says about the data, such as missing termsForUniqueKey or empty or
+  # duplicated keys, is reported but does not fail the step: throwErrorOnValidationFail above is
+  # the stricter option. Same caveat about batch isolation as below.
+  failOnDatasetError: false
 
 images:
   appName: Image syncing for {datasetId}
@@ -340,6 +352,8 @@ validation-report:
   checkSolr: true
   checkSampling: true
   solrCollection: biocache
+  # Exit non-zero when at least one dataset is not in a valid state for indexing
+  failOnInvalid: false
 
 
 

@@ -8,6 +8,7 @@ import au.org.ala.pipelines.common.ALARecordTypes;
 import au.org.ala.pipelines.options.UUIDPipelineOptions;
 import au.org.ala.pipelines.util.VersionInfo;
 import au.org.ala.utils.CombinedYamlConfiguration;
+import au.org.ala.utils.DatasetProcessingException;
 import au.org.ala.utils.ValidationResult;
 import au.org.ala.utils.ValidationUtils;
 import java.text.SimpleDateFormat;
@@ -92,7 +93,15 @@ public class ALAUUIDMintingPipeline {
     MDC.put("attempt", options.getAttempt().toString());
     MDC.put("step", "UUID");
     PipelinesOptionsFactory.registerHdfs(options);
-    run(options);
+    try {
+      run(options);
+    } catch (Exception e) {
+      log.error(
+          "UUID minting failed for dataset {}: {}", options.getDatasetId(), e.getMessage(), e);
+      // FIXME: Issue logged here:
+      // https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
+      System.exit(1);
+    }
     // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
     System.exit(0);
   }
@@ -112,8 +121,12 @@ public class ALAUUIDMintingPipeline {
     log.info("Validation result: {} ", validationResult.getMessage());
 
     if (!validationResult.getValid()) {
-      log.error(
-          "Unable to run UUID pipeline. Please check validation file: "
+      ValidationUtils.failOrWarn(
+          ALAUUIDValidationPipeline.failOnValidationError(options, validationResult.getMessage()),
+          validationResult.getMessage(),
+          "Unable to run UUID pipeline for dataset "
+              + options.getDatasetId()
+              + ". Please check validation file: "
               + ValidationUtils.getValidationFilePath(options));
       return;
     }
@@ -143,8 +156,10 @@ public class ALAUUIDMintingPipeline {
     // lookup collectory metadata for this data resource
     ALACollectoryMetadata collectoryMetadata = dataResourceKvStore.get(options.getDatasetId());
     if (collectoryMetadata.equals(ALACollectoryMetadata.EMPTY)) {
-      log.error("Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
-      System.exit(1);
+      // not System.exit, which would also kill a surefire fork or an embedded spark driver
+      throw new DatasetProcessingException(
+          ValidationUtils.METADATA_NOT_AVAILABLE,
+          "Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
     }
 
     // construct unique list of darwin core terms
@@ -156,7 +171,10 @@ public class ALAUUIDMintingPipeline {
         defaultValues != null ? defaultValues : Collections.emptyMap();
 
     if ((uniqueTerms == null || uniqueTerms.isEmpty())) {
-      log.error(
+      ValidationUtils.failOrWarn(
+          ALAUUIDValidationPipeline.failOnValidationError(
+              options, ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED),
+          ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED,
           "Unable to proceed, No unique terms specified for dataset: " + options.getDatasetId());
       return;
     }
@@ -279,9 +297,19 @@ public class ALAUUIDMintingPipeline {
 
       if (percentageChange > options.getPercentageChangeAllowed()
           && !options.getOverridePercentageCheck()) {
-        log.warn(
-            "The number of records with new identifiers has changed by 50%. This update will be blocked.");
         fs.delete(newVersionUUids, true);
+        ValidationUtils.failOrWarn(
+            ALAUUIDValidationPipeline.failOnValidationError(
+                options, ValidationUtils.UUID_CHANGE_BLOCKED),
+            ValidationUtils.UUID_CHANGE_BLOCKED,
+            "The number of records with new identifiers for dataset "
+                + options.getDatasetId()
+                + " has changed by "
+                + percentageChange
+                + "%, more than the "
+                + options.getPercentageChangeAllowed()
+                + "% allowed. This update has been blocked, so the dataset keeps its previous "
+                + "identifiers and will not be re-indexed.");
         return;
       }
 
