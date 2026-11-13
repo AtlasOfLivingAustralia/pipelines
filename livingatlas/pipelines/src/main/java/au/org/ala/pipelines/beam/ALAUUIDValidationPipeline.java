@@ -285,7 +285,7 @@ public class ALAUUIDValidationPipeline {
     ValidationResult validationResult = ValidationUtils.checkValidationFile(options);
     if (!validationResult.getValid()) {
       ValidationUtils.failOrWarn(
-          failOnValidationError(options),
+          failOnValidationError(options, validationResult.getMessage()),
           validationResult.getMessage(),
           "Validation of dataset "
               + options.getDatasetId()
@@ -295,12 +295,16 @@ public class ALAUUIDValidationPipeline {
   }
 
   /**
-   * Whether a dataset that fails validation should fail the step. Honours the deprecated {@code
-   * throwErrorOnValidationFail} as well as {@code failOnDatasetError}.
+   * Whether a dataset that fails validation should fail the step.
+   *
+   * <p>{@code failOnDatasetError} only covers the reasons that mean the step could not do its job,
+   * so a dataset with no unique key terms, or with empty or duplicated keys, is reported and left
+   * alone. {@code throwErrorOnValidationFail} is the stricter, pre-existing option: it fails on
+   * anything the validation report rejects.
    */
-  static boolean failOnValidationError(UUIDPipelineOptions options) {
-    return ValidationUtils.failOnDatasetError(options)
-        || Boolean.TRUE.equals(options.getThrowErrorOnValidationFail());
+  static boolean failOnValidationError(UUIDPipelineOptions options, String reason) {
+    return Boolean.TRUE.equals(options.getThrowErrorOnValidationFail())
+        || ValidationUtils.failOnDatasetError(options, reason);
   }
 
   @NotNull

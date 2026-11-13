@@ -122,7 +122,7 @@ public class ALAUUIDMintingPipeline {
 
     if (!validationResult.getValid()) {
       ValidationUtils.failOrWarn(
-          ALAUUIDValidationPipeline.failOnValidationError(options),
+          ALAUUIDValidationPipeline.failOnValidationError(options, validationResult.getMessage()),
           validationResult.getMessage(),
           "Unable to run UUID pipeline for dataset "
               + options.getDatasetId()
@@ -172,7 +172,8 @@ public class ALAUUIDMintingPipeline {
 
     if ((uniqueTerms == null || uniqueTerms.isEmpty())) {
       ValidationUtils.failOrWarn(
-          ALAUUIDValidationPipeline.failOnValidationError(options),
+          ALAUUIDValidationPipeline.failOnValidationError(
+              options, ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED),
           ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED,
           "Unable to proceed, No unique terms specified for dataset: " + options.getDatasetId());
       return;
@@ -298,7 +299,8 @@ public class ALAUUIDMintingPipeline {
           && !options.getOverridePercentageCheck()) {
         fs.delete(newVersionUUids, true);
         ValidationUtils.failOrWarn(
-            ALAUUIDValidationPipeline.failOnValidationError(options),
+            ALAUUIDValidationPipeline.failOnValidationError(
+                options, ValidationUtils.UUID_CHANGE_BLOCKED),
             ValidationUtils.UUID_CHANGE_BLOCKED,
             "The number of records with new identifiers for dataset "
                 + options.getDatasetId()

@@ -27,11 +27,11 @@ public interface UUIDPipelineOptions
   void setOverridePercentageCheck(Boolean overridePercentageCheck);
 
   /**
-   * @deprecated superseded by {@link FailOnDatasetErrorOptions#getFailOnDatasetError()}, which
-   *     covers every condition that stops a dataset being processed, not just the validation
-   *     report. Still honoured so existing configurations keep working.
+   * The stricter counterpart of {@link FailOnDatasetErrorOptions#getFailOnDatasetError()}: this
+   * fails on anything the validation report rejects, data problems such as missing unique key terms
+   * or duplicated keys included, while failOnDatasetError only covers the conditions in which the
+   * step could not do its job at all.
    */
-  @Deprecated
   @Description("Throw error on validation fail")
   @Default.Boolean(false)
   Boolean getThrowErrorOnValidationFail();

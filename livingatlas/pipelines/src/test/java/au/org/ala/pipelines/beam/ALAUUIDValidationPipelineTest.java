@@ -71,11 +71,27 @@ public class ALAUUIDValidationPipelineTest {
         ValidationUtils.checkValidationFile(options).getMessage());
   }
 
+  /**
+   * Missing unique key terms is a data problem, not a step that could not run, so it is reported
+   * and the step still exits successfully even with failOnDatasetError.
+   */
   @Test
-  public void testInvalidDatasetFailsWhenRequested() throws Exception {
+  public void testMissingUniqueTermsDoesNotFailOnDatasetError() throws Exception {
+    UUIDPipelineOptions options = options("dr9998", true);
+    ALAUUIDValidationPipeline.run(options);
+    assertEquals(
+        ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED,
+        ValidationUtils.checkValidationFile(options).getMessage());
+  }
+
+  /** The stricter, pre-existing option does fail on it. */
+  @Test
+  public void testMissingUniqueTermsFailsWithThrowErrorOnValidationFail() throws Exception {
+    UUIDPipelineOptions options = options("dr9998", false);
+    options.setThrowErrorOnValidationFail(true);
     try {
-      ALAUUIDValidationPipeline.run(options("dr9998", true));
-      fail("Expected a DatasetProcessingException for a dataset without termsForUniqueKey");
+      ALAUUIDValidationPipeline.run(options);
+      fail("Expected a DatasetProcessingException with throwErrorOnValidationFail enabled");
     } catch (DatasetProcessingException e) {
       assertEquals(ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED, e.getReason());
     }

@@ -183,11 +183,13 @@ uuid:
   inputPath: '{fsPath}/pipelines-data'
   numberOfBackupsToKeep: 10
   percentageChangeAllowed: 50
-  # Deprecated, superseded by failOnDatasetError
+  # Fail on anything the validation report rejects, data problems included
   throwErrorOnValidationFail: false
-  # Exit non-zero when the dataset cannot be given UUIDs (no termsForUniqueKey configured, dataset
-  # not in the collectory, empty or duplicated unique keys, blocked UUID change), instead of
-  # logging an error and exiting successfully. Same caveat about batch isolation as above.
+  # Exit non-zero when the dataset cannot be given UUIDs at all (not in the collectory, or the
+  # UUID change was blocked), instead of logging an error and exiting successfully. What the
+  # validation report says about the data, such as missing termsForUniqueKey or empty or
+  # duplicated keys, is reported but does not fail the step: throwErrorOnValidationFail above is
+  # the stricter option. Same caveat about batch isolation as below.
   failOnDatasetError: false
 
 images:

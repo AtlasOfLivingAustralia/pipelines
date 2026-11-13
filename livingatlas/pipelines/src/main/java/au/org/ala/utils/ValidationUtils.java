@@ -10,8 +10,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -76,6 +80,34 @@ public class ValidationUtils {
   }
 
   /**
+   * The conditions in which a step could not do its job at all, as opposed to what the validation
+   * report says about the data itself.
+   *
+   * <p>Only these make a step fail under {@code failOnDatasetError}. A dataset with no unique key
+   * terms configured, or with empty or duplicated keys, is a data problem: the step did run, the
+   * validation report records it, and existing records keep whatever identifiers they already had,
+   * so it is reported rather than raised. {@code throwErrorOnValidationFail} still covers those for
+   * anyone who wants the stricter behaviour.
+   */
+  private static final Set<String> DATASET_ERRORS =
+      Collections.unmodifiableSet(
+          new HashSet<>(Arrays.asList(METADATA_NOT_AVAILABLE, NO_VERBATIM, UUID_CHANGE_BLOCKED)));
+
+  /** Whether this reason means the step could not do its job, rather than a data problem. */
+  public static boolean isDatasetError(String reason) {
+    return DATASET_ERRORS.contains(reason);
+  }
+
+  /**
+   * Whether a step should fail for this reason, given the options.
+   *
+   * @see #isDatasetError(String)
+   */
+  public static boolean failOnDatasetError(PipelineOptions options, String reason) {
+    return failOnDatasetError(options) && isDatasetError(reason);
+  }
+
+  /**
    * Reports a condition that stops the dataset being processed any further.
    *
    * <p>When {@code failOnDatasetError} is set the condition is raised as a {@link
@@ -83,18 +115,18 @@ public class ValidationUtils {
    * Otherwise it is only logged, which is the historical behaviour: the step returns normally and
    * the orchestrating job sees a success for a dataset that will not reach the index.
    *
-   * @param failOnDatasetError whether to raise the condition as an error
+   * @param failOnError whether to raise the condition as an error
    * @param reason machine readable reason, one of the constants of this class
    * @param message human readable explanation, logged and used as the exception message
    */
-  public static void failOrWarn(boolean failOnDatasetError, String reason, String message) {
-    if (failOnDatasetError) {
+  public static void failOrWarn(boolean failOnError, String reason, String message) {
+    if (failOnError) {
       log.error("{} [{}]", message, reason);
       throw new DatasetProcessingException(reason, message);
     }
     log.error(
-        "{} [{}]. Continuing and exiting successfully because failOnDatasetError is not set, "
-            + "so this dataset will be missing from the index without the job failing.",
+        "{} [{}]. Continuing and exiting successfully, so this dataset stays out of the index "
+            + "without the job failing. See the validation report for the full list.",
         message,
         reason);
   }

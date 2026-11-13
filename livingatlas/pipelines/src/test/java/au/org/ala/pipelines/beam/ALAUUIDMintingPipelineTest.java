@@ -86,19 +86,22 @@ public class ALAUUIDMintingPipelineTest {
         ValidationUtils.checkValidationFile(options).getMessage());
   }
 
-  /** dr9998 is registered but has no termsForUniqueKey configured. */
+  /**
+   * dr9998 is registered but has no termsForUniqueKey configured. That is a data problem, not a
+   * step that could not run: the records keep whatever identifiers they already had, so even with
+   * failOnDatasetError the step reports it and exits successfully.
+   */
   @Test
-  public void testMissingUniqueTermsFailsWhenRequested() throws Exception {
-    try {
-      ALAUUIDMintingPipeline.run(options("dr9998", true));
-      fail("Expected a DatasetProcessingException for a dataset without termsForUniqueKey");
-    } catch (DatasetProcessingException e) {
-      assertEquals(ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED, e.getReason());
-    }
+  public void testMissingUniqueTermsDoesNotFailOnDatasetError() throws Exception {
+    UUIDPipelineOptions options = options("dr9998", true);
+    ALAUUIDMintingPipeline.run(options);
+    assertEquals(
+        ValidationUtils.UNIQUE_TERMS_NOT_SPECIFIED,
+        ValidationUtils.checkValidationFile(options).getMessage());
   }
 
   @Test
-  public void testMissingUniqueTermsIsOnlyLoggedByDefault() throws Exception {
+  public void testMissingUniqueTermsIsReportedByDefault() throws Exception {
     UUIDPipelineOptions options = options("dr9998", false);
     ALAUUIDMintingPipeline.run(options);
     assertEquals(
@@ -106,7 +109,10 @@ public class ALAUUIDMintingPipelineTest {
         ValidationUtils.checkValidationFile(options).getMessage());
   }
 
-  /** The deprecated throwErrorOnValidationFail option keeps working. */
+  /**
+   * The stricter, pre-existing option still fails on anything the validation report rejects,
+   * missing unique key terms included.
+   */
   @Test
   public void testDeprecatedThrowErrorOnValidationFailStillFails() throws Exception {
     UUIDPipelineOptions options = options("dr9998", false);
