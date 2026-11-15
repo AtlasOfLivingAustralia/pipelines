@@ -5,30 +5,27 @@ import au.org.ala.pipelines.options.SamplingPipelineOptions;
 import au.org.ala.sampling.SamplingService;
 import au.org.ala.utils.ALAFsUtils;
 import au.org.ala.utils.ValidationUtils;
+import au.org.ala.utils.WsUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.gbif.pipelines.core.config.model.SamplingConfig;
 import org.gbif.pipelines.core.utils.FsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Slf4j
 public class SamplingUtils {
 
-  public static SamplingService initSamplingService(String baseUrl) {
+  public static SamplingService initSamplingService(SamplingConfig samplingConfig) {
     ObjectMapper om =
-        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-    JacksonConverterFactory jcf = JacksonConverterFactory.create(om);
-    // set up sampling service
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(jcf).build();
-    return retrofit.create(SamplingService.class);
+        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+    return WsUtils.createClient(samplingConfig.getWsConfig(), SamplingService.class, om);
   }
 
   public static Long samplingLastRan(SamplingPipelineOptions options, FileSystem fs)

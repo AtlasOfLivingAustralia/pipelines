@@ -287,7 +287,7 @@ public class TestUtils {
                     .setHeader("Content-Type", "application/json")
                     .setBody(
                         "{\"status\": \"finished\", \"downloadUrl\": \""
-                            + getConfig().getSamplingService().getWsUrl()
+                            + getConfig().getSamplingService().getWsConfig().getWsUrl()
                             + "/download/sampling\"}");
               }
 
