@@ -108,7 +108,15 @@ public class ALAVerbatimToInterpretedPipeline {
         PipelinesOptionsFactory.create(ALAInterpretationPipelineOptions.class, combinedArgs);
     options.setMetaFileName(ValidationUtils.INTERPRETATION_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
-    run(options);
+    try {
+      run(options);
+    } catch (Exception e) {
+      log.error(
+          "Interpretation failed for dataset {}: {}", options.getDatasetId(), e.getMessage(), e);
+      // FIXME: Issue logged here:
+      // https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
+      System.exit(1);
+    }
     // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
     System.exit(0);
   }
@@ -118,7 +126,14 @@ public class ALAVerbatimToInterpretedPipeline {
     log.info("Pipeline has been started - {}", LocalDateTime.now());
     boolean verbatimAvroAvailable = ValidationUtils.isVerbatimAvroAvailable(options);
     if (!verbatimAvroAvailable) {
-      log.warn("Verbatim AVRO not available for {}", options.getDatasetId());
+      ValidationUtils.failOrWarn(
+          ValidationUtils.failOnDatasetError(options),
+          ValidationUtils.NO_VERBATIM,
+          "Verbatim AVRO not available for "
+              + options.getDatasetId()
+              + " at "
+              + options.getInputPath()
+              + ". Nothing has been interpreted.");
       return;
     }
 
@@ -160,9 +175,12 @@ public class ALAVerbatimToInterpretedPipeline {
     ALACollectoryMetadata m =
         ALAAttributionKVStoreFactory.create(config).get(options.getDatasetId());
     if (Objects.equals(m, ALACollectoryMetadata.EMPTY)) {
-      log.error(
-          "Collectory metadata no available for {}. Will not run interpretation",
-          options.getDatasetId());
+      ValidationUtils.failOrWarn(
+          ValidationUtils.failOnDatasetError(options),
+          ValidationUtils.METADATA_NOT_AVAILABLE,
+          "Collectory metadata not available for "
+              + options.getDatasetId()
+              + ". Will not run interpretation.");
       return;
     }
 

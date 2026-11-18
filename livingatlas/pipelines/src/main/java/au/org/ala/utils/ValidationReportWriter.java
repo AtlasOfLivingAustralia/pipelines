@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -30,6 +31,7 @@ import org.gbif.pipelines.core.pojo.HdfsConfigs;
  */
 @Parameters(separators = "=")
 @Slf4j
+@Setter
 public class ValidationReportWriter {
 
   @Parameter(
@@ -75,6 +77,14 @@ public class ValidationReportWriter {
   @Parameter(names = "--timeBufferInMillis", description = "Validation time buffer in millis")
   private Integer timeBufferInMillis = 30000;
 
+  @Parameter(
+      names = "--failOnInvalid",
+      description =
+          "Exit with a non-zero status when at least one dataset is not in a valid state for "
+              + "indexing, so that the job running this report fails instead of reporting success",
+      arity = 1)
+  private boolean failOnInvalid = false;
+
   protected static final String[] CSV_HEADERS =
       new String[] {
         "datasetID",
@@ -109,10 +119,22 @@ public class ValidationReportWriter {
       jCommander.usage();
       System.exit(1);
     }
-    m.run();
+    List<String> invalidDatasets = m.run();
+
+    if (!invalidDatasets.isEmpty() && m.failOnInvalid) {
+      System.exit(1);
+    }
   }
 
-  public void run() throws IOException {
+  /**
+   * Writes both reports.
+   *
+   * @return the datasets that are not in a valid state for indexing, each as {@code
+   *     datasetID:reason}
+   */
+  public List<String> run() throws IOException {
+
+    final List<String> invalidDatasets = new ArrayList<>();
 
     FileSystem fs =
         FileSystemFactory.getInstance(HdfsConfigs.create(hdfsSiteConfig, coreSiteConfig))
@@ -246,6 +268,9 @@ public class ValidationReportWriter {
           if (recordCount > 0 && verbatimLoaded && uuidLoaded) {
             readyToIndexCounts.put(datasetID, recordCount);
           }
+          if (!validationResult.getValid()) {
+            invalidDatasets.add(datasetID + ":" + validationResult.getMessage());
+          }
         }
       }
 
@@ -267,6 +292,20 @@ public class ValidationReportWriter {
     log.info("Total number of valid dataset: {}", list.size());
     log.info("A list of valid datasets was written to: {}", inputPath);
     log.info("A list of all datasets and validation results was written to: {}", fullReportPath);
+
+    if (invalidDatasets.isEmpty()) {
+      log.info("All {} datasets are in a valid state for indexing", count);
+    } else {
+      // logged at error level so that it is visible in the job output, not just in the CSV
+      log.error(
+          "{} of {} datasets are NOT in a valid state for indexing: {}",
+          invalidDatasets.size(),
+          count,
+          String.join(", ", invalidDatasets));
+      log.error("See {} for the full report", fullReportPath);
+    }
+
+    return invalidDatasets;
   }
 
   /** Retrieve index counts for all datasets. */

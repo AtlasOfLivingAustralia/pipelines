@@ -3,18 +3,24 @@ package au.org.ala.utils;
 import static au.org.ala.pipelines.beam.ALAUUIDMintingPipeline.UNIQUE_COMPOSITE_KEY_JOIN_CHAR;
 import static java.util.stream.Collectors.joining;
 
+import au.org.ala.pipelines.options.FailOnDatasetErrorOptions;
 import au.org.ala.pipelines.options.IndexingPipelineOptions;
 import au.org.ala.pipelines.options.UUIDPipelineOptions;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -43,6 +49,7 @@ public class ValidationUtils {
   public static final String NOT_INDEXED = "NOT_INDEXED";
   public static final String HAS_EMPTY_KEYS = "HAS_EMPTY_KEYS";
   public static final String HAS_DUPLICATES = "HAS_DUPLICATES";
+  public static final String UUID_CHANGE_BLOCKED = "UUID_CHANGE_BLOCKED";
 
   public static final String IMAGE_SERVICE_METRICS = "image-service-metrics.yml";
   public static final String UUID_METRICS = "uuid-metrics.yml";
@@ -62,6 +69,67 @@ public class ValidationUtils {
   public static final String DUPLICATE_KEYS_OUTPUT = "duplicateKeys.csv";
   public static final String UNIQUE_TERMS_SPECIFIED = "uniqueTermsSpecified";
   public static final String METADATA_AVAILABLE = "metadataAvailable";
+
+  /**
+   * Whether the pipeline should exit non-zero when it cannot process a dataset.
+   *
+   * @see FailOnDatasetErrorOptions
+   */
+  public static boolean failOnDatasetError(PipelineOptions options) {
+    return Boolean.TRUE.equals(options.as(FailOnDatasetErrorOptions.class).getFailOnDatasetError());
+  }
+
+  /**
+   * The conditions in which a step could not do its job at all, as opposed to what the validation
+   * report says about the data itself.
+   *
+   * <p>Only these make a step fail under {@code failOnDatasetError}. A dataset with no unique key
+   * terms configured, or with empty or duplicated keys, is a data problem: the step did run, the
+   * validation report records it, and existing records keep whatever identifiers they already had,
+   * so it is reported rather than raised. {@code throwErrorOnValidationFail} still covers those for
+   * anyone who wants the stricter behaviour.
+   */
+  private static final Set<String> DATASET_ERRORS =
+      Collections.unmodifiableSet(
+          new HashSet<>(Arrays.asList(METADATA_NOT_AVAILABLE, NO_VERBATIM, UUID_CHANGE_BLOCKED)));
+
+  /** Whether this reason means the step could not do its job, rather than a data problem. */
+  public static boolean isDatasetError(String reason) {
+    return DATASET_ERRORS.contains(reason);
+  }
+
+  /**
+   * Whether a step should fail for this reason, given the options.
+   *
+   * @see #isDatasetError(String)
+   */
+  public static boolean failOnDatasetError(PipelineOptions options, String reason) {
+    return failOnDatasetError(options) && isDatasetError(reason);
+  }
+
+  /**
+   * Reports a condition that stops the dataset being processed any further.
+   *
+   * <p>When {@code failOnDatasetError} is set the condition is raised as a {@link
+   * DatasetProcessingException}, which the pipeline's {@code main} turns into a non-zero exit code.
+   * Otherwise it is only logged, which is the historical behaviour: the step returns normally and
+   * the orchestrating job sees a success for a dataset that will not reach the index.
+   *
+   * @param failOnError whether to raise the condition as an error
+   * @param reason machine readable reason, one of the constants of this class
+   * @param message human readable explanation, logged and used as the exception message
+   */
+  public static void failOrWarn(boolean failOnError, String reason, String message) {
+    if (failOnError) {
+      log.error("{} [{}]", message, reason);
+      throw new DatasetProcessingException(reason, message);
+    }
+    log.error(
+        "{} [{}]. Continuing and exiting successfully, so this dataset stays out of the index "
+            + "without the job failing. See the validation report for the full list.",
+        message,
+        reason);
+  }
 
   /** Checks a dataset can be indexed. */
   public static ValidationResult checkReadyForIndexing(IndexingPipelineOptions options) {

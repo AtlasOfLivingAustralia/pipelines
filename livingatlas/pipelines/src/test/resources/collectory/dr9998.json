@@ -1,0 +1,15 @@
+{
+  "name": "Dataset without unique key terms",
+  "uid": "dr9998",
+  "licenseType": "CC0",
+  "licenseVersion": "4.0",
+  "contentTypes": [],
+  "connectionParameters": {
+    "protocol": "DwCA",
+    "automation": false,
+    "strip": false,
+    "incremental": false,
+    "url": "http://fake-url.org"
+  },
+  "defaultDarwinCoreValues": {}
+}
