@@ -19,7 +19,8 @@ public class DistributionOutlierTestIT {
   @Test
   public void getMultiLayers() throws Exception {
     DistributionServiceImpl impl =
-        DistributionServiceImpl.init(itUtils.getConfig().getSamplingService().getWsUrl());
+        DistributionServiceImpl.init(
+            itUtils.getConfig().getSamplingService().getWsConfig().getWsUrl());
     List<DistributionLayer> layers = impl.findLayersByLsid(lsidGreyNurseShark);
     assertSame(1, layers.size());
   }
@@ -27,7 +28,8 @@ public class DistributionOutlierTestIT {
   @Test
   public void outliers() throws Exception {
     DistributionServiceImpl impl =
-        DistributionServiceImpl.init(itUtils.getConfig().getSamplingService().getWsUrl());
+        DistributionServiceImpl.init(
+            itUtils.getConfig().getSamplingService().getWsConfig().getWsUrl());
     Map points = new HashMap();
     // decimalLatitude, decimalLongitude
     Map inPoint = new HashMap();
@@ -47,7 +49,8 @@ public class DistributionOutlierTestIT {
   @Test
   public void multiLayers() throws Exception {
     DistributionServiceImpl impl =
-        DistributionServiceImpl.init(itUtils.getConfig().getSamplingService().getWsUrl());
+        DistributionServiceImpl.init(
+            itUtils.getConfig().getSamplingService().getWsConfig().getWsUrl());
 
     // Grey nurse shark
     Map points = new HashMap();
@@ -71,7 +74,8 @@ public class DistributionOutlierTestIT {
   @Test
   public void url_as_id_outliers() throws Exception {
     DistributionServiceImpl impl =
-        DistributionServiceImpl.init(itUtils.getConfig().getSamplingService().getWsUrl());
+        DistributionServiceImpl.init(
+            itUtils.getConfig().getSamplingService().getWsConfig().getWsUrl());
 
     Map points = new HashMap();
     // decimalLatitude, decimalLongitude

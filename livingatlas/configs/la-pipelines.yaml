@@ -121,6 +121,10 @@ gbifConfig:
       http://rs.tdwg.org/dwc/terms/lifeStage: LifeStage
       http://rs.tdwg.org/dwc/terms/establishmentMeans: EstablishmentMeans
       http://rs.tdwg.org/dwc/terms/pathway: Pathway
+      http://rs.tdwg.org/dwc/terms/typeStatus: TypeStatus
+      http://rs.tdwg.org/dwc/terms/sex: Sex
+      http://rs.tdwg.org/dwc/terms/eventType: EventType
+      http://rs.tdwg.org/dwc/terms/occurrenceStatus: OccurrenceStatus
 
 alaNameMatchConfig:
   matchOnTaxonID: true
@@ -538,3 +542,4 @@ jvm:
     --add-opens java.base/sun.security.action=ALL-UNNAMED
     --add-opens java.base/sun.util.calendar=ALL-UNNAMED
     --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED
+    --add-exports java.desktop/com.sun.imageio.spi=ALL-UNNAMED

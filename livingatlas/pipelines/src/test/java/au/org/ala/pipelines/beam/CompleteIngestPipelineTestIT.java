@@ -150,6 +150,22 @@ public class CompleteIngestPipelineTestIT {
     assertEquals("native", record.get().get("raw_establishmentMeans"));
     assertEquals("native", record.get().get("establishmentMeans"));
 
+    // 'larvae' in lifeStage is processed as 'Larva'
+    assertEquals("larvae", record.get().get("raw_lifeStage"));
+    assertEquals("Larva", record.get().get("lifeStage"));
+
+    // 'larvae' in lifeStage is processed as 'Larva'
+    assertEquals("m", record.get().get("raw_sex"));
+    assertEquals("Male", record.get().get("sex"));
+
+    assertEquals("locotype", record.get().get("raw_typeStatus"));
+    assertEquals("Topotype", ((List) record.get().get("typeStatus")).get(0));
+
+    assertEquals("research", record.get().get("raw_pathway"));
+    assertEquals("research", record.get().get("pathway"));
+
+    assertEquals("survey", record.get().get("eventType"));
+
     // recordByID and identifiedByID
     assertEquals("id3", record.get().get("raw_recordedByID"));
     assertEquals("id3", ((List) record.get().get("recordedByID")).get(0));

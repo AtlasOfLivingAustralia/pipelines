@@ -301,7 +301,6 @@ public class ALAOccurrenceJsonConverter {
 
   private void mapTaxonRecord(OccurrenceJsonRecord.Builder builder) {
 
-    // Set  GbifClassification
     List<Taxonomy> taxonomy = new ArrayList<>();
 
     taxonomy.add(

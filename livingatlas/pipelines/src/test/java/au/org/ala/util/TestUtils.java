@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -150,7 +151,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr1")) {
+              if (request.getPath().startsWith("/v2/download/dr1")) {
 
                 Source source =
                     Okio.source(new File("src/test/resources/species-lists/test-list.csv"));
@@ -164,7 +165,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr2")) {
+              if (request.getPath().startsWith("/v2/download/dr2")) {
 
                 Source source =
                     Okio.source(new File("src/test/resources/species-lists/test-list2.csv"));
@@ -178,7 +179,7 @@ public class TestUtils {
               }
 
               // list download
-              if (request.getPath().startsWith("/speciesListItem/downloadList/dr3")) {
+              if (request.getPath().startsWith("/v2/download/dr3")) {
                 Source source = Okio.source(new File("src/test/resources/species-lists/griis.csv"));
                 Buffer buffer = new Buffer();
                 buffer.writeAll(source);
@@ -202,6 +203,10 @@ public class TestUtils {
     MockWebServer server = new MockWebServer();
     final Dispatcher dispatcher =
         new Dispatcher() {
+          private final AtomicInteger getLayersAttempts = new AtomicInteger();
+          private final AtomicInteger getBatchStatusAttempts = new AtomicInteger();
+          private final AtomicInteger getDownloadAttempts = new AtomicInteger();
+
           @Override
           public MockResponse dispatch(RecordedRequest request) {
 
@@ -251,7 +256,15 @@ public class TestUtils {
                     .setBody(responseBody);
               }
 
-              // layers...
+              // Simulate failed attempt for layers...
+              if (request.getPath().endsWith("/layers")
+                  && getLayersAttempts.incrementAndGet() <= 2) {
+                return new MockResponse()
+                    .setResponseCode(503)
+                    .setHeader("Content-Type", "application/json")
+                    .setBody("{\"error\":\"Temporarily unavailable\"}");
+              }
+
               if (request.getPath().endsWith("/layers")) {
                 String responseBody =
                     FileUtils.readFileToString(
@@ -273,22 +286,40 @@ public class TestUtils {
                     .setBody(responseBody);
               }
 
+              // Submit Intersect Batch request
               if (request.getPath().endsWith("/intersect/batch")) {
-
                 return new MockResponse()
                     .setResponseCode(200)
                     .setHeader("Content-Type", "application/json")
                     .setBody("{ \"batchId\": 12345678}");
               }
 
+              // Simulate failed response for get batch status
+              if (request.getPath().startsWith("/intersect/batch/")
+                  && getBatchStatusAttempts.incrementAndGet() <= 3) {
+                return new MockResponse()
+                    .setResponseCode(503)
+                    .setHeader("Content-Type", "application/json")
+                    .setBody("{\"error\":\"Temporarily unavailable\"}");
+              }
+
+              // Get batch status request
               if (request.getPath().startsWith("/intersect/batch/")) {
                 return new MockResponse()
                     .setResponseCode(200)
                     .setHeader("Content-Type", "application/json")
                     .setBody(
                         "{\"status\": \"finished\", \"downloadUrl\": \""
-                            + getConfig().getSamplingService().getWsUrl()
+                            + getConfig().getSamplingService().getWsConfig().getWsUrl()
                             + "/download/sampling\"}");
+              }
+
+              if (request.getPath().startsWith("/download/sampling")
+                  && getDownloadAttempts.incrementAndGet() <= 3) {
+                return new MockResponse()
+                    .setResponseCode(503)
+                    .setHeader("Content-Type", "application/json")
+                    .setBody("{\"error\":\"Temporarily unavailable\"}");
               }
 
               if (request.getPath().startsWith("/download/sampling")) {

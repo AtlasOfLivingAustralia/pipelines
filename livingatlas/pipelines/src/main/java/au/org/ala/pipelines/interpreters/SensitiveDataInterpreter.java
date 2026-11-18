@@ -29,16 +29,16 @@ import org.gbif.pipelines.io.avro.*;
 public class SensitiveDataInterpreter {
   protected static final TermFactory TERM_FACTORY = TermFactory.instance();
   protected static final Term EVENT_DATE_END_TERM =
-      TERM_FACTORY.findTerm(IndexFields.EVENT_DATE_END);
+      SensitiveDataInterpreter.findTerm(IndexFields.EVENT_DATE_END);
 
   protected static final FieldAccessor DATA_GENERALIZATIONS =
       new FieldAccessor(DwcTerm.dataGeneralizations);
   protected static final FieldAccessor INFORMATION_WITHHELD =
       new FieldAccessor(DwcTerm.informationWithheld);
   protected static final FieldAccessor GENERALISATION_TO_APPLY_IN_METRES =
-      new FieldAccessor(TERM_FACTORY.findTerm("generalisationToApplyInMetres"));
+      new FieldAccessor(SensitiveDataInterpreter.findTerm("generalisationToApplyInMetres"));
   protected static final FieldAccessor GENERALISATION_IN_METRES =
-      new FieldAccessor(TERM_FACTORY.findTerm("generalisationInMetres"));
+      new FieldAccessor(SensitiveDataInterpreter.findTerm("generalisationInMetres"));
   protected static final FieldAccessor DECIMAL_LATITUDE =
       new FieldAccessor(DwcTerm.decimalLatitude);
   protected static final FieldAccessor DECIMAL_LONGITUDE =
@@ -99,7 +99,7 @@ public class SensitiveDataInterpreter {
 
     if (record.getClassification() != null) {
       for (RankedName r : record.getClassification()) {
-        Term rank = TERM_FACTORY.findTerm(r.getRank().toLowerCase());
+        Term rank = findTerm(r.getRank().toLowerCase());
         constructField(name, rank, sensitive, properties, RankedNameWithAuthorship::getName);
       }
     }
@@ -131,6 +131,17 @@ public class SensitiveDataInterpreter {
     constructFields(sensitive, properties, (IndexedRecord) record);
   }
 
+  protected static Term findTerm(String name) {
+    synchronized (TERM_FACTORY) {
+      try {
+        return TERM_FACTORY.findTerm(name);
+      } catch (IllegalArgumentException ex) {
+        log.error("Unable to resolve term for name '{}': {}", name, ex.getMessage());
+        throw ex;
+      }
+    }
+  }
+
   /**
    * Construct information from a generic AVRO record
    *
@@ -146,7 +157,7 @@ public class SensitiveDataInterpreter {
       return;
     }
     for (Schema.Field f : record.getSchema().getFields()) {
-      Term term = TERM_FACTORY.findTerm(f.name());
+      Term term = findTerm(f.name());
       if (term != null) {
         String name = term.qualifiedName();
         if (sensitive.contains(term) && !properties.containsKey(name)) {
@@ -163,7 +174,7 @@ public class SensitiveDataInterpreter {
       Set<Term> sensitive, Map<String, String> properties, Map<String, String> values) {
     values.forEach(
         (key, value) -> {
-          Term term = TERM_FACTORY.findTerm(key);
+          Term term = findTerm(key);
           if (sensitive.contains(term)) {
             String sn = term == null ? null : term.qualifiedName();
             if (sn != null && properties.get(sn) == null) {
@@ -279,7 +290,7 @@ public class SensitiveDataInterpreter {
       return;
     }
     for (Schema.Field f : record.getSchema().getFields()) {
-      Term term = TERM_FACTORY.findTerm(f.name());
+      Term term = findTerm(f.name());
       if (altered.containsKey(term.qualifiedName()) && !ignore.contains(term)) {
         String s = altered.get(term.qualifiedName());
         Schema schema = f.schema();
@@ -354,7 +365,7 @@ public class SensitiveDataInterpreter {
     sr.getAltered()
         .forEach(
             (k, v) -> {
-              Term term = TERM_FACTORY.findTerm(k);
+              Term term = findTerm(k);
               if (sensitive.contains(term)) {
                 String qn = term.qualifiedName();
                 if (values.containsKey(qn)) {

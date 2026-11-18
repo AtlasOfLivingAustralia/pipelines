@@ -12,4 +12,16 @@ public interface ALAEsIndexingPipelineOptions extends EsIndexingPipelineOptions 
   Boolean getIncludeSensitiveDataChecks();
 
   void setIncludeSensitiveDataChecks(Boolean includeSensitiveDataChecks);
+
+  @Description("ElasticSearch Connection timeout")
+  @Default.Integer(180000)
+  Integer getConnectionTimeout();
+
+  void setConnectionTimeout(Integer socketTimeout);
+
+  @Description("ElasticSearch Socket timeout")
+  @Default.Integer(30000)
+  Integer getSocketTimeout();
+
+  void setSocketTimeout(Integer socketTimeout);
 }

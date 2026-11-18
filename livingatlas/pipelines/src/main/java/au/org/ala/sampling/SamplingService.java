@@ -18,7 +18,8 @@ public interface SamplingService {
   @GET("layers")
   Call<List<Layer>> getLayers();
 
-  /** Return an inventory of layers in the ALA spatial portal */
+  /** Get the batch status of the submitted batch */
+  @Headers("Cache-Control: no-cache, no-store")
   @GET("intersect/batch/{id}")
   Call<BatchStatus> getBatchStatus(@Path("id") String id);
 
@@ -27,7 +28,7 @@ public interface SamplingService {
    *
    * @param layerIds The layers of interest in comma separated form
    * @param coordinatePairs The coordinates in lat,lng,lat,lng... format
-   * @return The batch submited
+   * @return The batch submitted
    */
   @FormUrlEncoded
   @POST("intersect/batch")

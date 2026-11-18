@@ -34,6 +34,11 @@ samplingService:
   wsUrl: http://localhost:SPATIAL_PORT
 #  wsUrl: https://sampling.ala.org.au/sampling-service/
   timeoutSec: 70
+  # Add this retryConfig portion only if you want to override what is the default
+  # https://github.com/AtlasOfLivingAustralia/pipelines/blob/develop/sdks/core/src/main/java/org/gbif/pipelines/core/config/model/RetryConfig.java#L16
+  retryConfig:
+    maxAttempts: 5
+    initialIntervalMillis: 1000
 sds:
   wsUrl: http://localhost:SDS_PORT
   timeoutSec: 70
@@ -91,8 +96,10 @@ gbifConfig:
       http://rs.tdwg.org/dwc/terms/lifeStage: LifeStage
       http://rs.tdwg.org/dwc/terms/establishmentMeans: EstablishmentMeans
       http://rs.tdwg.org/dwc/terms/pathway: Pathway
+      http://rs.tdwg.org/dwc/terms/typeStatus: TypeStatus
+      http://rs.tdwg.org/dwc/terms/sex: Sex
       http://rs.tdwg.org/dwc/terms/eventType: EventType
-      http://rs.tdwg.org/dwc/terms/occuurrenceStatus: OccurrenceStatus
+      http://rs.tdwg.org/dwc/terms/occurrenceStatus: OccurrenceStatus
 
 pipelineExcludeArgs: fsPath
 
@@ -172,6 +179,8 @@ elastic:
   indexNumberShards: 1
   indexNumberReplicas: 0
   esDocumentId: internalId
+  connectionTimeout: 180000
+  socketTimeout: 120000
 
 predicate-export:
   inputPath: '{fsPath}/pipelines-data'

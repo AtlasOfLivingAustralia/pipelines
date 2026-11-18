@@ -29,6 +29,9 @@ public class UUIDPipelineTestIT {
   /** Test the generation of UUIDs for datasets that are use non-DwC terms for unique key terms */
   @Test
   public void testNonDwC() throws Exception {
+    // clear up previous test runs
+    FileUtils.deleteQuietly(new File("/tmp/la-pipelines-test/uuid-management"));
+
     // dr1864 - has deviceId
     String absolutePath = new File("src/test/resources").getAbsolutePath();
     // Step 1: load a dataset and verify all records have a UUID associated

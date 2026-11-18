@@ -1,6 +1,7 @@
 package au.org.ala.pipelines.beam;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -60,6 +61,52 @@ public class CompleteIngestPipelineESTestIT {
 
     // clear SOLR index
     ElasticUtils.refreshIndex(INDEX_NAME + "_" + datasetID);
+
+    // Check record for occurrences
+    long occRecordCount = ElasticUtils.getRecordCount(INDEX_NAME);
+    assertEquals(6, occRecordCount);
+
+    long occBasisOfRecordCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "basisOfRecord", "HUMAN_OBSERVATION");
+    assertEquals(6, occBasisOfRecordCount);
+
+    long occDatasetKeyCount = ElasticUtils.getRecordCount(INDEX_NAME, "datasetKey", "dr893");
+    assertEquals(6, occDatasetKeyCount);
+
+    long occTaxonKingdomCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "taxonomy.name", "Animalia");
+    assertEquals(6, occTaxonKingdomCount);
+
+    long occTaxonClassCount = ElasticUtils.getRecordCount(INDEX_NAME, "taxonomy.name", "Insecta");
+    assertEquals(3, occTaxonClassCount);
+
+    long occTaxonSpeciesCount =
+        ElasticUtils.getRecordCount(INDEX_NAME, "taxonomy.name", "Erythrotriorchis radiatus");
+    assertEquals(1, occTaxonSpeciesCount);
+
+    long occOccId1Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-1");
+    assertEquals(1, occOccId1Count);
+
+    long occOccId2Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-2");
+    assertEquals(1, occOccId2Count);
+
+    long occOccId3Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-3");
+    assertEquals(1, occOccId3Count);
+
+    long occOccId4Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-4");
+    assertEquals(1, occOccId4Count);
+
+    long occOccId5Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-5");
+    assertEquals(1, occOccId5Count);
+
+    long occOccId6Count =
+        ElasticUtils.getRecordCount(INDEX_NAME, "occurrenceId.keyword", "not-an-uuid-6");
+    assertEquals(1, occOccId6Count);
 
     System.out.println("Finished");
   }

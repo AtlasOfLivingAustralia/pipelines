@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNull;
 
+import au.org.ala.kvs.ALAPipelinesConfigFactory;
 import au.org.ala.pipelines.options.*;
 import au.org.ala.util.IntegrationTestUtils;
 import au.org.ala.util.SolrUtils;
@@ -17,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.common.SolrDocument;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.pipelines.common.beam.options.PipelinesOptionsFactory;
+import org.junit.AfterClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +37,11 @@ public class SandboxJavaPipelineTestIT {
 
   // Safety net to prevent indefinite hangs in CI
   @Rule public final Timeout globalTimeout = new Timeout(10, MINUTES);
+
+  @AfterClass
+  public static void clearCachedConfig() {
+    ALAPipelinesConfigFactory.clearInstance();
+  }
 
   /** Tests for SOLR index creation. */
   @Test
