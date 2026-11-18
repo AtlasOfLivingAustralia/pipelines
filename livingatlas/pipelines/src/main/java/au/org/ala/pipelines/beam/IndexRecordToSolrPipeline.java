@@ -17,6 +17,7 @@ import au.org.ala.utils.CombinedYamlConfiguration;
 import au.org.ala.utils.ValidationUtils;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.beam.sdk.Pipeline;
@@ -94,9 +95,18 @@ public class IndexRecordToSolrPipeline {
   }
 
   public static void run(SolrPipelineOptions options) {
+    run(options, getSchemaFields(options), getSchemaDynamicFieldPrefixes(options));
+  }
 
-    final Map<String, SolrFieldSchema> schemaFields = getSchemaFields(options);
-    final List<String> dynamicFieldPrefixes = getSchemaDynamicFieldPrefixes(options);
+  /**
+   * Builds and runs the pipeline with an already-resolved SOLR schema. Separated from {@link
+   * #run(SolrPipelineOptions)} so the join graph can be exercised without a live SOLR.
+   */
+  static void run(
+      SolrPipelineOptions options,
+      final Map<String, SolrFieldSchema> schemaFields,
+      final List<String> dynamicFieldPrefixes) {
+
     final int numOfPartitions = options.getNumOfPartitions();
 
     Pipeline pipeline = Pipeline.create(options);
@@ -152,10 +162,9 @@ public class IndexRecordToSolrPipeline {
                   new SimpleFunction<KV<String, IndexRecord>, KV<String, IndexRecord>>() {
                     @Override
                     public KV<String, IndexRecord> apply(KV<String, IndexRecord> input) {
-                      // add hash
-                      Random ran = new Random();
-                      // values 0 to numOfPartitions
-                      int x = ran.nextInt(numOfPartitions - 1);
+                      // spread each coordinate over numOfPartitions keys, so that a coordinate
+                      // shared by very many records does not become a single huge join key
+                      int x = ThreadLocalRandom.current().nextInt(numOfPartitions);
                       String latLng =
                           StringUtils.isEmpty(input.getValue().getLatLng())
                               ? input
