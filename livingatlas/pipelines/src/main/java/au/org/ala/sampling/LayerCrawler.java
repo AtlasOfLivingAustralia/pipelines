@@ -76,8 +76,9 @@ public class LayerCrawler {
     MDC.put("step", "SAMPLING");
 
     log.info("Initialising crawler....");
+    // Adding a retry mechanism for layer crawler as this job can take a couple of hours to finish
     service =
-        WsUtils.createClient(
+        WsUtils.createClientWithRetries(
             config.getSamplingService().getWsConfig(), SamplingService.class, new ObjectMapper());
     log.info("Initialised.");
 

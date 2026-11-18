@@ -25,7 +25,7 @@ public class SamplingUtils {
   public static SamplingService initSamplingService(SamplingConfig samplingConfig) {
     ObjectMapper om =
         new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-    return WsUtils.createClient(samplingConfig.getWsConfig(), SamplingService.class, om);
+    return WsUtils.createClientWithRetries(samplingConfig.getWsConfig(), SamplingService.class, om);
   }
 
   public static Long samplingLastRan(SamplingPipelineOptions options, FileSystem fs)

@@ -34,6 +34,11 @@ samplingService:
   wsUrl: http://localhost:SPATIAL_PORT
 #  wsUrl: https://sampling.ala.org.au/sampling-service/
   timeoutSec: 70
+  # Add this retryConfig portion only if you want to override what is the default
+  # https://github.com/AtlasOfLivingAustralia/pipelines/blob/develop/sdks/core/src/main/java/org/gbif/pipelines/core/config/model/RetryConfig.java#L16
+  retryConfig:
+    maxAttempts: 5
+    initialIntervalMillis: 1000
 sds:
   wsUrl: http://localhost:SDS_PORT
   timeoutSec: 70
