@@ -246,9 +246,17 @@ function getConf() {
 }
 
 function toArg() {
-  PREFIX=$1
-  KEY=$2
-  echo --$KEY $(getConf $PREFIX.$KEY)
+  local PREFIX=$1
+  local KEY=$2
+  local VAL
+  VAL=$(getConf "$PREFIX.$KEY")
+  if [[ -z "$VAL" || "$VAL" = "DONT_SET" ]] ; then
+    return
+  fi
+  if [[ "$KEY" = "num-executors" && ( "$VAL" = "0" || "$VAL" = "dynamic" ) ]] ; then
+    return
+  fi
+  echo "--$KEY $VAL"
 }
 
 ## Process run options
@@ -518,31 +526,61 @@ function spark-embed-pipeline() {
 
 function spark-cluster-pipeline() {
     local ltype="$1" SH_ARGS="$2" CLASS="$3" dr="$4" NAME="$5"
-    local CONF
+    local CONF NUM_EXECUTORS RAW_NUM_EXECUTORS DYNAMIC_ALLOC SPARK_DEFAULTS DYN_VAL
+
+    if [[ $ltype != "spark-cluster" ]] ; then
+        return
+    fi
 
     CONF=$(toArg $SH_ARGS conf)
     # Remove empty confs
     if [[ $CONF = "--conf" ]] ; then CONF=""; fi
 
+    DYNAMIC_ALLOC=false
+    if [[ "$CONF" == *"spark.dynamicAllocation.enabled=true"* ]] ; then
+        DYNAMIC_ALLOC=true
+    elif [[ "$CONF" != *"spark.dynamicAllocation.enabled=false"* ]] ; then
+        SPARK_DEFAULTS="${SPARK_CONF_DIR:-/etc/spark/conf}/spark-defaults.conf"
+        if [[ -r "$SPARK_DEFAULTS" ]] ; then
+            DYN_VAL=$(awk '!/^[[:space:]]*#/ && /^[[:space:]]*spark\.dynamicAllocation\.enabled([[:space:]]+|[[:space:]]*=[[:space:]]*)/ {
+                sub(/^[[:space:]]*spark\.dynamicAllocation\.enabled([[:space:]]*=[[:space:]]*|[[:space:]]+)/, "");
+                sub(/[[:space:]]*(#.*)?$/, "");
+                val = $0
+            } END { print val }' "$SPARK_DEFAULTS")
+            if [[ "$DYN_VAL" == "true" ]] ; then
+                DYNAMIC_ALLOC=true
+            fi
+        fi
+    fi
+
+    RAW_NUM_EXECUTORS=$(getConf "$SH_ARGS.num-executors")
+    if [[ ( "$RAW_NUM_EXECUTORS" = "0" || "$RAW_NUM_EXECUTORS" = "dynamic" ) && "$DYNAMIC_ALLOC" != "true" ]] ; then
+        log.error "$SH_ARGS.num-executors is '$RAW_NUM_EXECUTORS' without spark.dynamicAllocation.enabled=true in conf or ${SPARK_CONF_DIR:-/etc/spark/conf}/spark-defaults.conf; omitting --num-executors without dynamic allocation would silently fall back to YARN's default of 2 executors"
+        exit 1
+    fi
+
+    NUM_EXECUTORS=""
+    if [[ "$CONF" != *"spark.dynamicAllocation.enabled=true"* ]] ; then
+        NUM_EXECUTORS=$(toArg $SH_ARGS num-executors)
+    fi
+
     MASTER="--master $SPARK_MASTER"
     if [[ $SPARK_MASTER = "DONT_SET" ]] ; then MASTER=""; fi
 
-    if [[ $ltype = "spark-cluster" ]] ; then
-        $_D $SPARK_SUBMIT_PATH \
-            --name "$NAME" \
-            $CONF \
-            $(toArg $SH_ARGS num-executors) \
-            $(toArg $SH_ARGS executor-cores) \
-            $(toArg $SH_ARGS executor-memory) \
-            $(toArg $SH_ARGS driver-memory) \
-            --class $CLASS \
-            $MASTER \
-            $PIPELINES_JAR \
-            --datasetId=$dr \
-            --config=$config $ARGS \
-            --experiments=use_deprecated_read
-        # TODO set here an optional colorized log4j properties
-    fi
+    $_D $SPARK_SUBMIT_PATH \
+        --name "$NAME" \
+        $CONF \
+        $NUM_EXECUTORS \
+        $(toArg $SH_ARGS executor-cores) \
+        $(toArg $SH_ARGS executor-memory) \
+        $(toArg $SH_ARGS driver-memory) \
+        --class $CLASS \
+        $MASTER \
+        $PIPELINES_JAR \
+        --datasetId=$dr \
+        --config=$config $ARGS \
+        --experiments=use_deprecated_read
+    # TODO set here an optional colorized log4j properties
 }
 
 function interpret () {
