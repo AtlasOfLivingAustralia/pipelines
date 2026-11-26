@@ -246,9 +246,17 @@ function getConf() {
 }
 
 function toArg() {
-  PREFIX=$1
-  KEY=$2
-  echo --$KEY $(getConf $PREFIX.$KEY)
+  local PREFIX=$1
+  local KEY=$2
+  local VAL
+  VAL=$(getConf "$PREFIX.$KEY")
+  if [[ -z "$VAL" || "$VAL" = "DONT_SET" ]] ; then
+    return
+  fi
+  if [[ "$KEY" = "num-executors" && ( "$VAL" = "0" || "$VAL" = "dynamic" ) ]] ; then
+    return
+  fi
+  echo "--$KEY $VAL"
 }
 
 ## Process run options
@@ -518,11 +526,16 @@ function spark-embed-pipeline() {
 
 function spark-cluster-pipeline() {
     local ltype="$1" SH_ARGS="$2" CLASS="$3" dr="$4" NAME="$5"
-    local CONF
+    local CONF NUM_EXECUTORS
 
     CONF=$(toArg $SH_ARGS conf)
     # Remove empty confs
     if [[ $CONF = "--conf" ]] ; then CONF=""; fi
+
+    NUM_EXECUTORS=""
+    if [[ "$CONF" != *"spark.dynamicAllocation.enabled=true"* ]] ; then
+        NUM_EXECUTORS=$(toArg $SH_ARGS num-executors)
+    fi
 
     MASTER="--master $SPARK_MASTER"
     if [[ $SPARK_MASTER = "DONT_SET" ]] ; then MASTER=""; fi
@@ -531,7 +544,7 @@ function spark-cluster-pipeline() {
         $_D $SPARK_SUBMIT_PATH \
             --name "$NAME" \
             $CONF \
-            $(toArg $SH_ARGS num-executors) \
+            $NUM_EXECUTORS \
             $(toArg $SH_ARGS executor-cores) \
             $(toArg $SH_ARGS executor-memory) \
             $(toArg $SH_ARGS driver-memory) \
